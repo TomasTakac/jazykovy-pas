@@ -12,9 +12,15 @@ Nepotrebuje server ani účet: pokrok sa ukladá v zariadení a medzi zariadenia
 
 Potom ide do rozloženého opakovania (1 → 3 → 7 → … dní). Čím lepšie ho vieš, tým ťažšia forma: výber → skladanie → písanie → doplnenie do vety.
 
+## Obsah
+Nemčina 22 lekcií (264 slovíčok a fráz), francúzština, španielčina, portugalčina a ruština po 14 lekcií (140), v každom jazyku 3 príbehy s prekladom, 30 až 45 viet na doplnenie a slová do hry na rody.
+
+## Vzhľad
+V Nastaveniach (ozubené koliesko) je 11 farebných tém vrátane tmavej a čierno-ružovej a vlastná téma so štyrmi farbami.
+
 ## Súbory
 - `index.html`, `styles.css`, `app.js`: appka
-- `content.js`: lekcie, vety, hry a príbehy (riadok lekcie: `slovo | význam | príkladová veta | preklad vety | poznámka`)
+- `content.js`, `content-plus.js`: lekcie, vety, hry a príbehy (riadok lekcie: `slovo | význam | príkladová veta | preklad vety | poznámka`; v `content-plus.js` sa lekcie pridávajú cez `add()`, voliteľne s `after` na zaradenie za inú lekciu)
 - `sw.js`, `manifest.webmanifest`, `icons/`: inštalácia na plochu a práca offline (pri každej zmene zvýš `VERSION` v `sw.js`)
 
 ## Lokálne spustenie

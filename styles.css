@@ -23,9 +23,9 @@
     --shadow:none; --scrim:rgba(0,0,0,.55);
     color-scheme:dark;
   }
-  .lc{--lc:var(--lad)!important}
 }
 .lc{--lc:var(--la)}
+html.dk .lc{--lc:var(--lad)}
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -330,6 +330,31 @@ textarea.input{resize:vertical}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);opacity:0;pointer-events:none;z-index:80;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:500;max-width:calc(100% - 32px);transition:opacity .25s,transform .25s;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
+/* settings & themes */
+.top-actions{display:flex;align-items:center;gap:8px}
+.icon-btn.sm{width:34px;height:34px}
+.swatches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sw{display:grid;gap:6px;text-align:center;font-size:12px;font-weight:600;color:var(--ink);min-width:0}
+.sw-prev{position:relative;display:block;aspect-ratio:4/3;border-radius:14px;background:var(--sb);border:2px solid var(--line);overflow:hidden;padding:10px}
+.sw.on .sw-prev{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.sw-half{position:absolute;inset:0;background:linear-gradient(135deg,#F3F4F7 50%,#0F1115 50%)}
+.sw-card{position:relative;display:grid;gap:5px;align-content:start;height:100%;border-radius:8px;background:var(--ss);padding:8px}
+.sw-line{display:block;height:5px;border-radius:3px;background:var(--si);opacity:.85;width:80%}
+.sw-line.s{width:55%;opacity:.4}
+.sw-dot{position:absolute;right:7px;bottom:7px;width:16px;height:16px;border-radius:50%;background:var(--sa)}
+.sw-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.colors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cpick{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-size:14px;font-weight:500;min-width:0}
+.cpick input{width:38px;height:38px;border:0;padding:0;background:none;border-radius:10px;flex:none;cursor:pointer}
+.set-inline{display:flex;align-items:center;gap:10px;font-size:15px}
+.set-inline input{width:22px;height:22px;accent-color:var(--accent)}
+.howto,.faq details{border-radius:var(--r);background:var(--surface);border:1px solid var(--line);padding:14px 16px}
+.howto summary,.faq summary{font-weight:600;cursor:pointer}
+.howto ol{margin:10px 0 8px;padding-left:20px;display:grid;gap:8px;font-size:14px}
+.faq{display:grid;gap:8px}
+.faq p{font-size:14px;color:var(--muted);margin-top:8px;line-height:1.55}
+.scn button small{font-size:11px;color:var(--muted);margin-left:4px;font-family:var(--f-ui)}
+.scn button.on small{color:inherit;opacity:.7}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes pop{from{transform:scale(.9)}to{transform:none}}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}

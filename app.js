@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 
-const VERSION = '2.0';
+const VERSION = '2.1';
 const CONTENT = window.CONTENT || {};
 
 /* ───────────── helpers ───────────── */
@@ -47,6 +47,7 @@ const ICONS = {
   download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
   upload:'<path d="M12 20V9M7 14l5-5 5 5M5 4h14"/>',
   copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   dots:'<circle cx="5.5" cy="12" r="3" fill="var(--m)" stroke="none"/><circle cx="12" cy="12" r="3" fill="var(--f)" stroke="none"/><circle cx="18.5" cy="12" r="3" fill="var(--n)" stroke="none"/>'
 };
 const ic = (n, s) => `<svg class="ic" viewBox="0 0 24 24" width="${s||22}" height="${s||22}" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
@@ -70,7 +71,7 @@ const G_LABEL = {m:'der · mužský rod', f:'die · ženský rod', n:'das · str
 const UNITS = {}, SENT = {}, BYID = {};
 function mkItem(c, base){
   const it = Object.assign({c, ex:'', exSk:'', note:''}, base);
-  if (c === 'de') { const m = String(it.t).match(/^(der|die|das)\s/); if (m) it.g = /množn/.test(it.note) ? 'p' : {der:'m',die:'f',das:'n'}[m[1]]; }
+  if (c === 'de') { const m = String(it.t).match(/^(der|die|das)\s/); if (m) it.g = /množn/i.test(it.note) ? 'p' : {der:'m',die:'f',das:'n'}[m[1]]; }
   return it;
 }
 for (const c in LANGS) {
@@ -88,8 +89,8 @@ for (const c in LANGS) {
 }
 
 /* ───────────── state & storage ───────────── */
-const DEFAULT = () => ({v:2, updatedAt:0, active:'de', order:['de','fr','es','pt','ru'], goal:30, perLesson:5, rate:0.9, translit:true, voices:{}, days:{}, installHidden:false, lastBackup:0});
-const emptyP = () => ({updatedAt:0, it:{}, custom:[], best:{}, story:{answers:{}, done:false}, log:{d:'', l:0, r:0, g:0}});
+const DEFAULT = () => ({v:2, updatedAt:0, active:'de', order:['de','fr','es','pt','ru'], goal:30, perLesson:5, rate:0.9, translit:true, voices:{}, theme:'auto', langAccent:false, custom:null, days:{}, installHidden:false, lastBackup:0, backupSnooze:0});
+const emptyP = () => ({updatedAt:0, it:{}, custom:[], best:{}, st:{}, log:{d:'', l:0, r:0, g:0}});
 let S = DEFAULT();
 const P = {};
 let tab = ls('tab') || 'today';
@@ -97,7 +98,10 @@ function load(){
   S = Object.assign(DEFAULT(), ls('settings') || {});
   S.order = (S.order || []).filter(c => LANGS[c]); if (!S.order.length) S.order = ['de'];
   if (!S.order.includes(S.active)) S.active = S.order[0];
-  for (const c in LANGS) P[c] = Object.assign(emptyP(), ls('p-'+c) || {});
+  for (const c in LANGS) {
+    P[c] = Object.assign(emptyP(), ls('p-'+c) || {});
+    if (P[c].story) { const first = (CONTENT[c] || {}).story; if (first) P[c].st[first.title] = Object.assign({answers:{}, done:false}, P[c].story); delete P[c].story; }
+  }
 }
 const dirty = new Set(); let saveT;
 function save(key){ const now = Date.now(); if (key === 'settings') S.updatedAt = now; else if (P[key]) P[key].updatedAt = now; dirty.add(key); clearTimeout(saveT); saveT = setTimeout(flush, 300); }
@@ -145,11 +149,12 @@ function importText(txt){
     for (const id in (r.it || {})) { const a = l.it[id], b = r.it[id]; if (b && (!a || (b.last||0) > (a.last||0))) l.it[id] = b; }
     const ids = new Set(l.custom.map(x => x.id)); (r.custom || []).forEach(x => { if (x && !ids.has(x.id)) l.custom.push(x); });
     for (const k in (r.best || {})) l.best[k] = Math.max(l.best[k]||0, r.best[k]||0);
-    if (r.story) { l.story.done = !!(l.story.done || r.story.done); l.story.answers = Object.assign({}, r.story.answers || {}, l.story.answers || {}); }
+    const rst = Object.assign({}, r.st || {}); if (r.story && (CONTENT[c] || {}).story) rst[CONTENT[c].story.title] = r.story;
+    for (const t in rst) { const a = l.st[t] || {answers:{}, done:false}, b = rst[t] || {}; l.st[t] = {done:!!(a.done || b.done), answers:Object.assign({}, b.answers || {}, a.answers || {})}; }
     save(c);
   }
   for (const k in (rs.days || {})) S.days[k] = Math.max(S.days[k]||0, rs.days[k]||0);
-  if ((rs.updatedAt||0) > (S.updatedAt||0)) ['goal','perLesson','rate','translit','order','active','voices'].forEach(k => { if (rs[k] !== undefined) S[k] = rs[k]; });
+  if ((rs.updatedAt||0) > (S.updatedAt||0)) ['goal','perLesson','rate','translit','order','active','voices','theme','langAccent','custom'].forEach(k => { if (rs[k] !== undefined) S[k] = rs[k]; });
   S.order = S.order.filter(c => LANGS[c]); if (!S.order.length) S.order = ['de']; if (!S.order.includes(S.active)) S.active = S.order[0];
   save('settings'); flush(); render(); toast('Záloha načítaná a spojená s týmto zariadením.');
   return true;
@@ -176,6 +181,8 @@ const Speech = {
   female(v){ return this.FEMALE.test(v.name); },
   quality(v){ return /premium|prémi/i.test(v.name) ? 3 : /enhanced|vylepš|natural|neural|erweitert|online/i.test(v.name) ? 2 : 1; },
   list(c){ return this.voices.filter(v => this.lang(v).startsWith(c)); },
+  sorted(c){ const sc = v => (this.ROBOT.test(v.name) ? -10 : 0) + (this.female(v) ? 4 : 0) + this.quality(v); return this.list(c).slice().sort((a, b) => sc(b) - sc(a) || a.name.localeCompare(b.name)); },
+  refresh(){ if (!this.synth) return; try { this.voices = this.synth.getVoices() || []; } catch(e) {} },
   label(v){ const q = this.quality(v); return v.name.replace(/\s*\((enhanced|premium|vylepšený|prémiový)\)/i, '') + (this.female(v) ? ' · ženský' : '') + (q === 3 ? ' · prémiový' : q === 2 ? ' · vylepšený' : '') + (this.ROBOT.test(v.name) ? ' · robotický' : ''); },
   pick(c){
     const vs = this.list(c); if (!vs.length) return null;
@@ -831,21 +838,31 @@ function glossify(text, gloss, used, c){
   return out + esc(text.slice(p));
 }
 function sentenceWith(text, w){ const parts = String(text).split(/(?<=[.!?…»])\s+/); const lw = w.toLocaleLowerCase(); return parts.find(p => p.toLocaleLowerCase().includes(lw)) || ''; }
+const LV = {A1:1, A2:2, B1:3, B2:4, C1:5};
+function storiesOf(c){ const L = CONTENT[c] || {}; return [L.story].concat(L.stories || []).filter(Boolean).map((s, i) => Object.assign({level:'A2', idx:i}, s)).sort((a, b) => (LV[a.level]||2) - (LV[b.level]||2) || a.idx - b.idx); }
+const stState = (c, s) => P[c].st[s.title] || (P[c].st[s.title] = {answers:{}, done:false});
+function curStory(c){
+  const all = storiesOf(c); if (!all.length) return null;
+  const want = (ls('read') || {})[c];
+  return all.find(s => s.title === want) || all.find(s => !(P[c].st[s.title] || {}).done) || all[0];
+}
 function renderRead(view){
-  const c = S.active, L = LANGS[c], s = (CONTENT[c] || {}).story, used = new Set();
+  const c = S.active, L = LANGS[c], all = storiesOf(c), s = curStory(c), used = new Set();
   if (!s) { view.innerHTML = `<p class="muted">Pre tento jazyk zatiaľ nie je príbeh.</p>`; return; }
-  const ans = P[c].story.answers || {}, open = trOpen[c] || {};
-  view.innerHTML = `<section class="read-head"><p class="eyebrow">Čítanie · ${esc(L.name)}</p><h1 class="h1" lang="${c}">${esc(s.title)}</h1>
-    <div class="row-tools">${Speech.can(c) ? `<button class="btn sm" data-act="read-all">${ic('speaker',16)} Prečítať nahlas</button>` : ''}<span class="muted small">Podčiarknuté slová si ťukni a ulož.</span></div></section>
+  const sst = P[c].st[s.title] || {answers:{}, done:false}, ans = sst.answers || {}, open = (trOpen[c] || {})[s.title] || {};
+  view.innerHTML = `<section class="read-head"><p class="eyebrow">Čítanie · ${esc(L.name)} · ${all.filter(x => (P[c].st[x.title] || {}).done).length} z ${all.length} prečítaných</p>
+    <div class="scn">${all.map(x => `<button class="${x.title === s.title ? 'on' : ''}" data-act="story-pick" data-arg="${esc(x.title)}" lang="${c}">${(P[c].st[x.title] || {}).done ? '✓ ' : ''}${esc(x.title)} <small>${esc(x.level)}</small></button>`).join('')}</div>
+    <h1 class="h1" lang="${c}">${esc(s.title)}</h1>
+    <div class="row-tools">${Speech.can(c) ? `<button class="btn sm" data-act="read-all">${ic('speaker',16)} Prečítať nahlas</button>` : ''}<span class="muted small">Úroveň ${esc(s.level)} · podčiarknuté slová si ťukni a ulož.</span></div></section>
     <article class="story" lang="${c}">${s.paragraphs.map((p, i) => `<div class="para"><p>${glossify(p, s.glossary, used, c)}</p>${trLine(c, p)}
       <div class="para-tools">${Speech.can(c) ? `<button class="link" data-act="say-para" data-arg="${i}">${ic('speaker',15)} Vypočuť</button>` : ''}${s.tr && s.tr[i] ? `<button class="link" data-act="tr-para" data-arg="${i}">${open[i] ? 'Skryť preklad' : 'Preklad'}</button>` : ''}</div>
       ${open[i] && s.tr ? `<p class="tr" lang="sk">${esc(s.tr[i])}</p>` : ''}</div>`).join('')}</article>
     ${s.questions && s.questions.length ? `<section class="quiz"><h2 class="h2">Porozumel si?</h2>${s.questions.map((q, qi) => `<div class="q"><p class="q-t" lang="${c}">${esc(q.q)}</p>${q.options.map((o, oi) => { const a = ans[qi]; let cls = ''; if (a !== undefined) { if (oi === q.answer) cls = 'right'; else if (oi === a) cls = 'wrong'; } return `<button class="opt ${cls}" lang="${c}" data-act="quiz" data-arg="${qi}:${oi}" ${a !== undefined ? 'disabled' : ''}>${esc(o)}</button>`; }).join('')}</div>`).join('')}
-      ${P[c].story.done ? `<p class="goal-met">${ic('check',18)} Prečítané</p>` : `<button class="btn btn-primary btn-wide" data-act="story-done">Mám prečítané · +10 XP</button>`}</section>` : ''}
-    <p class="foot">Ďalšie príbehy pribudnú v ďalšej verzii appky.</p>`;
+      ${sst.done ? `<p class="goal-met">${ic('check',18)} Prečítané</p>` : `<button class="btn btn-primary btn-wide" data-act="story-done">Mám prečítané · +10 XP</button>`}</section>` : ''}
+    ${(() => { const nx = all.find(x => x.title !== s.title && !(P[c].st[x.title] || {}).done); return nx ? `<button class="btn btn-wide" data-act="story-pick" data-arg="${esc(nx.title)}">Ďalší príbeh: <span lang="${c}">${esc(nx.title)}</span></button>` : ''; })()}`;
 }
 function openGloss(gi){
-  const c = S.active, s = CONTENT[c].story, g = s && s.glossary[gi]; if (!g) return;
+  const c = S.active, s = curStory(c), g = s && s.glossary[gi]; if (!g) return;
   const ctx = sentenceWith(s.paragraphs.join(' '), g.w), saved = (P[c].custom || []).some(k => k.t === g.w);
   const pop = $('#pop');
   pop.innerHTML = `<div class="pop-card" role="dialog" aria-label="Slovíčko">
@@ -876,6 +893,11 @@ function installHTML(){
     : 'V Chrome alebo Edge nájdeš v ponuke prehliadača položku Inštalovať. Na iPhone použi Safari a Pridať na plochu.';
   return `<aside class="install"><b>Pridaj si Jazykový pas ako appku</b><button class="x" data-act="hide-install">Skryť</button><p>${txt}</p>${installEvt ? `<button class="btn sm btn-primary" data-act="install">Nainštalovať</button>` : ''}</aside>`;
 }
+function backupHTML(){
+  const learned = S.order.reduce((n, x) => n + Object.keys(P[x].it).length, 0);
+  if (learned < 15 || Date.now() - (S.lastBackup || 0) < 14 * DAY || Date.now() - (S.backupSnooze || 0) < 3 * DAY) return '';
+  return `<aside class="install"><b>Zálohuj si pokrok</b><button class="x" data-act="backup-later">Neskôr</button><p>Máš za sebou ${learned} ${slovicok(learned)}. Záloha trvá pár sekúnd a pokrok s ňou prenesieš aj na PC.</p><button class="btn sm btn-primary" data-act="export">${ic('download',16)} Uložiť zálohu</button></aside>`;
+}
 function renderToday(view){
   const c = S.active, L = LANGS[c], now = new Date(), hr = now.getHours();
   const WD = ['nedeľa','pondelok','utorok','streda','štvrtok','piatok','sobota'], MO = ['januára','februára','marca','apríla','mája','júna','júla','augusta','septembra','októbra','novembra','decembra'];
@@ -901,7 +923,7 @@ function renderToday(view){
     'Počul si niečo zaujímavé? V Lekciách si pridaj vlastné slovíčko. To, čo potrebuješ ty, sa učí najlepšie.',
     'Lepšie hlasy: Nastavenia → Prístupnosť → Hovorený obsah → Hlasy. Stiahni si vylepšený hlas pre jazyk, ktorý sa učíš.'
   ];
-  view.innerHTML = `${installHTML()}
+  view.innerHTML = `${installHTML()}${backupHTML()}
     <section class="hello"><div class="hello-txt"><p class="eyebrow">${WD[now.getDay()]} ${now.getDate()}. ${MO[now.getMonth()]}</p><h1 class="h1 greet" lang="${c}">${esc(L.hello[hr < 11 ? 0 : hr < 18 ? 1 : 2])}</h1><p class="sub">${esc(L.name)} · séria ${st} ${dni(st)}</p></div>
       <div class="ring-box">${ring(xp, S.goal)}<div class="ring-label"><b>${xp}</b><span>z ${S.goal} XP</span></div></div></section>
     <section class="plan"><p class="eyebrow">Dnešný plán</p><ol class="plan-steps">${steps}</ol>${cta}</section>
@@ -937,7 +959,7 @@ function heatHTML(){
   return `<div class="heat-wrap"><div class="heat-days"><span>Po</span><span></span><span>St</span><span></span><span>Pi</span><span></span><span>Ne</span></div><div class="heat">${cells}</div></div>`;
 }
 function renderProgress(view){
-  const c = S.active, st = streak(), lb = S.lastBackup ? new Date(S.lastBackup) : null;
+  const c = S.active, st = streak();
   view.innerHTML = `<section class="read-head"><p class="eyebrow">Pokrok</p><h1 class="h1">Tvoj jazykový pas</h1></section>
   <div class="stats"><div class="stat"><b>${st}</b><span>${dni(st)} v sérii</span></div><div class="stat"><b>${todayXP()}</b><span>XP dnes z ${S.goal}</span></div><div class="stat"><b>${totalXP()}</b><span>XP celkom</span></div></div>
   <section class="sec"><h2 class="h2">Posledných 12 týždňov</h2>${heatHTML()}<div class="legend"><span>Svetlé: niečo si urobil</span><span>Plné: denný cieľ</span></div></section>
@@ -945,29 +967,7 @@ function renderProgress(view){
     return `<button class="lrow lc" style="--la:${L.c[0]};--lad:${L.c[1]}" data-act="lang" data-arg="${x}"><div class="lrow-h"><b><i></i>${esc(L.name)}</b><span class="muted small">${x === c ? 'aktívny' : ''}</span></div>
       <div class="seg"><i style="width:${pc(s.m)}%"></i><i style="width:${pc(s.l)}%"></i></div>
       <div class="legend"><span>${s.m} zvládnutých</span><span>${s.l} v učení</span><span>${s.n} nových</span></div></button>`; }).join('')}</section>
-  <section class="sec"><h2 class="h2">Nastavenia</h2><div class="settings">
-    <div class="set"><label for="set-goal">Denný cieľ<small>Jedna lekcia je asi 30 XP</small></label><select id="set-goal" data-set="goal">${[[20,'20 XP · ~5 min'],[30,'30 XP · ~8 min'],[50,'50 XP · ~12 min'],[80,'80 XP · ~20 min']].map(o => `<option value="${o[0]}" ${S.goal === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></div>
-    <div class="set"><label for="set-per">Nové slovíčka v lekcii</label><select id="set-per" data-set="perLesson">${[3,5,8].map(n => `<option ${S.perLesson === n ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
-    ${Speech.synth ? `<div class="set col"><label>Hlas<small>Predvolene vyberám ženský hlas v najlepšej kvalite, akú zariadenie má. Ťukni na ${ic('speaker',12).replace('class="ic"','class="ic" style="display:inline;vertical-align:-1px"')} a vypočuj si ho.</small></label>
-      ${S.order.map(x => { const vs = Speech.list(x), cur = Speech.pick(x), want = (S.voices || {})[x] || '';
-        return `<div class="field" style="align-items:center"><span class="small" style="width:92px;flex:none;font-weight:600">${esc(LANGS[x].name)}</span>${vs.length
-          ? `<select id="voice-${x}" data-set="voice" data-lang="${x}" style="flex:1;min-width:0;max-width:none" aria-label="Hlas pre ${esc(LANGS[x].name)}"><option value="" ${want ? '' : 'selected'}>Automaticky${cur ? ': ' + esc(cur.name.replace(/\s*\(.*\)/, '')) : ''}</option>${vs.map(v => `<option value="${esc(v.voiceURI || v.name)}" ${want && (want === v.voiceURI || want === v.name) ? 'selected' : ''}>${esc(Speech.label(v))}</option>`).join('')}</select><button class="speak" data-act="voice-test" data-arg="${x}" aria-label="Vypočuť hlas">${ic('speaker',16)}</button>`
-          : `<span class="small muted" style="flex:1">Na tomto zariadení chýba hlas pre tento jazyk.</span>`}</div>`; }).join('')}
-    </div>` : ''}
-    <div class="set"><label for="set-rate">Rýchlosť hlasu</label><select id="set-rate" data-set="rate">${[[0.75,'Pomalšie'],[0.9,'Učebná'],[1,'Prirodzená']].map(o => `<option value="${o[0]}" ${S.rate === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></div>
-    ${S.order.includes('ru') ? `<div class="set"><label for="set-tr">Prepis azbuky<small>Ruština aj latinkou</small></label><input type="checkbox" id="set-tr" data-set="translit" ${S.translit ? 'checked' : ''}></div>` : ''}
-    <div class="set col"><label>Jazyky v pase</label><div class="btnrow">${Object.keys(LANGS).map(x => `<label class="btn sm" style="gap:8px"><input type="checkbox" data-set="lang" value="${x}" ${S.order.includes(x) ? 'checked' : ''}> ${esc(LANGS[x].name)}</label>`).join('')}</div></div>
-  </div></section>
-  <section class="sec"><h2 class="h2">Záloha a prenos na PC</h2><div class="settings"><div class="set col">
-    <p class="small muted">Pokrok je uložený len v tomto zariadení. Keď chceš pokračovať na PC alebo meníš mobil, ulož si zálohu a načítaj ju na druhom zariadení. Pokrok z oboch sa spojí, nič sa neprepíše.</p>
-    <div class="btnrow"><button class="btn sm" data-act="export">${ic('download',16)} Uložiť zálohu</button><button class="btn sm" data-act="copy-backup">${ic('copy',16)} Kopírovať</button><button class="btn sm" data-act="import-file">${ic('upload',16)} Načítať súbor</button><button class="btn sm" data-act="paste-backup">Vložiť text</button></div>
-    <p class="small muted">Posledná záloha: ${lb ? `${lb.getDate()}. ${lb.getMonth()+1}. ${lb.getFullYear()}` : 'zatiaľ žiadna'}</p>
-    <input type="file" id="imp-file" accept=".json,application/json,text/plain" hidden>
-  </div></div></section>
-  <section class="sec"><h2 class="h2">Tipy pre iPhone</h2><div class="settings">
-    <div class="set col"><b>Krajší ženský hlas</b><p class="small muted">Nastavenia → Prístupnosť → Hovorený obsah → Hlasy → vyber jazyk a stiahni hlas s označením Vylepšený alebo Prémiový. Ženské hlasy: nemčina Anna alebo Petra, francúzština Audrey alebo Aurélie, španielčina Mónica alebo Marisol, portugalčina Luciana alebo Fernanda, ruština Milena alebo Katya. Potom ho zvoľ vyššie v Nastaveniach alebo nechaj Automaticky.</p></div>
-    <div class="set col"><b>Klávesnica pre jazyk</b><p class="small muted">Nastavenia → Všeobecné → Klávesnica → Klávesnice → Pridať novú. S nemeckou máš ä, ö, ü a ß po ruke, s ruskou azbuku. Ruštinu ti appka uzná aj latinkou.</p></div>
-  </div></section>
+  <button class="btn btn-wide" data-act="settings">${ic('gear',18)} Nastavenia, vzhľad, hlas a záloha</button>
   <section class="sec"><h2 class="h2">Prečo to funguje</h2><ol class="method">
     <li><b>Najprv spoznať, potom tvoriť</b><span>Nové slovo uvidíš a počuješ, potom ho vyberáš z možností, skladáš a až nakoniec píšeš. Každý krok je o kúsok ťažší.</span></li>
     <li><b>Aktívne vybavovanie</b><span>Odpoveď si skúsiš vybaviť sám. Práve táto námaha ukladá slová do dlhodobej pamäti.</span></li>
@@ -977,25 +977,151 @@ function renderProgress(view){
   </ol></section>
   <p class="foot">Jazykový pas ${VERSION} · funguje offline · tvoje dáta neopúšťajú zariadenie</p>`;
 }
+
+/* ───────────── themes ───────────── */
+const THEMES = [
+  {id:'auto', name:'Podľa telefónu', auto:true},
+  {id:'light', name:'Svetlý', bg:'#F3F4F7', surface:'#FFFFFF', ink:'#14161B'},
+  {id:'dark', name:'Tmavý', bg:'#0F1115', surface:'#181B21', ink:'#EEF0F4'},
+  {id:'pink', name:'Čierno-ružový', bg:'#0B0A0D', surface:'#19141B', ink:'#F8EEF4', accent:'#FF4FA3'},
+  {id:'midnight', name:'Polnočný', bg:'#0A1022', surface:'#131C38', ink:'#E6ECFF', accent:'#7EA6FF'},
+  {id:'ocean', name:'Oceán', bg:'#06191E', surface:'#0D2A31', ink:'#E2F6F7', accent:'#2FD4C2'},
+  {id:'neon', name:'Neón', bg:'#090909', surface:'#171717', ink:'#F3F3F3', accent:'#C8FF3D'},
+  {id:'mint', name:'Mätový', bg:'#ECF6F1', surface:'#FFFFFF', ink:'#0F241B', accent:'#0E9A6C'},
+  {id:'lavender', name:'Levanduľový', bg:'#F2EFFA', surface:'#FFFFFF', ink:'#1D1730', accent:'#7655EE'},
+  {id:'peach', name:'Broskyňový', bg:'#FFF1EA', surface:'#FFFFFF', ink:'#2A1710', accent:'#E8582C'},
+  {id:'rose', name:'Ružový', bg:'#FFF0F6', surface:'#FFFFFF', ink:'#2B1020', accent:'#E0368A'},
+  {id:'custom', name:'Vlastný', custom:true}
+];
+const CUSTOM_DEFAULT = {bg:'#121016', surface:'#1E1A24', ink:'#F5F0F8', accent:'#FF5FA8'};
+const mqDark = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+const prefersDark = () => !!(mqDark && mqDark.matches);
+const hex2rgb = h => { h = String(h || '#000').replace('#',''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); return [0,2,4].map(i => parseInt(h.slice(i, i + 2), 16) || 0); };
+const rgb2hex = r => '#' + r.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2,'0')).join('');
+const mix = (a, b, t) => { const A = hex2rgb(a), B = hex2rgb(b); return rgb2hex(A.map((v, i) => v + (B[i] - v) * t)); };
+const lum = h => { const c = hex2rgb(h).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }); return .2126 * c[0] + .7152 * c[1] + .0722 * c[2]; };
+const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+const readableOn = c => contrast(c, '#FFFFFF') >= contrast(c, '#111111') ? '#FFFFFF' : '#111111';
+const themeById = id => THEMES.find(t => t.id === id) || THEMES[0];
+function baseOf(t){
+  if (t.custom) return Object.assign({}, CUSTOM_DEFAULT, S.custom || {});
+  if (t.auto) return themeById(prefersDark() ? 'dark' : 'light');
+  return t;
+}
+function palette(c){
+  const b = baseOf(themeById(S.theme)), dark = lum(b.bg) < 0.2, L = LANGS[c].c;
+  const useLang = !b.accent || S.langAccent;
+  const accent = useLang ? (dark ? L[1] : L[0]) : b.accent;
+  let aInk = accent; for (let i = 0; i < 8 && contrast(aInk, b.surface) < 4.2; i++) aInk = mix(aInk, b.ink, 0.2);
+  const g = dark ? '#4CC584' : '#16834F', bd = dark ? '#FF7070' : '#C93636', w = dark ? '#EDB453' : '#9A6410';
+  return {dark, p:{
+    '--bg':b.bg, '--surface':b.surface, '--ink':b.ink,
+    '--surface-2':mix(b.surface, b.ink, dark ? .08 : .07), '--muted':mix(b.ink, b.bg, dark ? .38 : .42), '--line':mix(b.surface, b.ink, dark ? .16 : .13),
+    '--accent':accent, '--accent-soft':mix(b.surface, accent, dark ? .22 : .16), '--accent-ink':useLang && !dark ? L[2] : aInk, '--on-accent':readableOn(accent),
+    '--good':g, '--good-soft':mix(b.surface, g, dark ? .2 : .13), '--bad':bd, '--bad-soft':mix(b.surface, bd, dark ? .2 : .12), '--warn':w, '--warn-soft':mix(b.surface, dark ? w : '#C98A1A', dark ? .2 : .15),
+    '--m':dark ? '#76A7FF' : '#2563C9', '--f':dark ? '#FF7F99' : '#CF3358', '--n':dark ? '#55D394' : '#17845A',
+    '--on-art':dark ? b.bg : '#FFFFFF', '--on-good':dark ? b.bg : '#FFFFFF',
+    '--shadow':dark ? 'none' : '0 1px 2px rgba(20,22,27,.05), 0 10px 28px rgba(20,22,27,.07)', '--scrim':dark ? 'rgba(0,0,0,.55)' : 'rgba(14,16,20,.32)'
+  }};
+}
+function applyTheme(c){
+  const {p, dark} = palette(c), r = document.documentElement;
+  for (const k in p) r.style.setProperty(k, p[k]);
+  r.style.colorScheme = dark ? 'dark' : 'light'; r.classList.toggle('dk', dark);
+  let m = document.querySelector('meta[name="theme-color"]:not([media])');
+  if (!m) { document.querySelectorAll('meta[name="theme-color"]').forEach(x => x.remove()); m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); }
+  m.content = p['--bg'];
+}
+if (mqDark && mqDark.addEventListener) mqDark.addEventListener('change', () => { if (S.theme === 'auto') applyTheme(S.active); });
+function swatch(t){
+  const b = baseOf(t), dark = lum(b.bg) < .2, L = LANGS[S.active].c;
+  const acc = b.accent && !S.langAccent ? b.accent : (dark ? L[1] : L[0]);
+  return `<button class="sw ${S.theme === t.id ? 'on' : ''}" data-act="theme" data-arg="${t.id}" style="--sb:${b.bg};--ss:${b.surface};--si:${b.ink};--sa:${acc}" aria-pressed="${S.theme === t.id}">
+    <span class="sw-prev">${t.auto ? '<i class="sw-half"></i>' : ''}<i class="sw-card"><i class="sw-line"></i><i class="sw-line s"></i><i class="sw-dot"></i></i></span><span class="sw-name">${esc(t.name)}</span></button>`;
+}
+
+/* ───────────── settings sheet ───────────── */
+function storageKB(){ let n = 0; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('jp2:')) n += (k.length + (localStorage.getItem(k) || '').length) * 2; } } catch(e) {} return Math.max(1, Math.round(n / 1024)); }
+function settingsHTML(){
+  const t = themeById(S.theme), cu = Object.assign({}, CUSTOM_DEFAULT, S.custom || {}), lb = S.lastBackup ? new Date(S.lastBackup) : null;
+  const ownAccent = t.custom || !!t.accent;
+  return `<section class="sec"><h2 class="h2">Vzhľad</h2>
+    <div class="swatches">${THEMES.map(swatch).join('')}</div>
+    ${ownAccent ? `<label class="set-inline"><input type="checkbox" data-set="langAccent" ${S.langAccent ? 'checked' : ''}> Farba zvýraznenia podľa jazyka</label>` : `<p class="small muted">Farba zvýraznenia sa mení podľa jazyka, ktorý sa práve učíš.</p>`}
+    ${t.custom ? `<div class="settings"><div class="set col"><b>Tvoje farby</b>
+      <div class="colors">${[['bg','Pozadie'],['surface','Karty'],['ink','Text'],['accent','Zvýraznenie']].map(([k, l]) => `<label class="cpick"><input type="color" data-set="custom" data-key="${k}" value="${esc(cu[k])}" aria-label="${l}"><span>${l}</span></label>`).join('')}</div>
+      ${contrast(cu.ink, cu.surface) < 4.5 ? '<p class="small" style="color:var(--bad)">Text na kartách môže byť zle čitateľný. Skús tmavší alebo svetlejší text.</p>' : '<p class="small muted">Zmena sa ukáže hneď. Pre tmavý vzhľad zvoľ tmavé pozadie a svetlý text.</p>'}
+    </div></div>` : ''}
+  </section>
+  ${Speech.synth ? `<section class="sec"><h2 class="h2">Hlas</h2><div class="settings"><div class="set col">
+    <p class="small muted">Appka používa hlasy, ktoré má tvoje zariadenie. Automaticky vyberie ženský hlas v najlepšej kvalite. Ťukni na reproduktor a vypočuj si ho.</p>
+    ${S.order.map(x => { const vs = Speech.sorted(x), cur = Speech.pick(x), want = (S.voices || {})[x] || '';
+      return `<div class="field" style="align-items:center"><span class="small" style="width:96px;flex:none;font-weight:600">${esc(LANGS[x].name)}<br><span class="muted" style="font-weight:400">${vs.length} ${vs.length === 1 ? 'hlas' : vs.length >= 2 && vs.length <= 4 ? 'hlasy' : 'hlasov'}</span></span>${vs.length
+        ? `<select id="voice-${x}" data-set="voice" data-lang="${x}" style="flex:1;min-width:0;max-width:none" aria-label="Hlas pre ${esc(LANGS[x].name)}"><option value="" ${want ? '' : 'selected'}>Automaticky${cur ? ': ' + esc(cur.name.replace(/\s*\(.*\)/, '')) : ''}</option>${vs.map(v => `<option value="${esc(v.voiceURI || v.name)}" ${want && (want === v.voiceURI || want === v.name) ? 'selected' : ''}>${esc(Speech.label(v))}</option>`).join('')}</select><button class="speak" data-act="voice-test" data-arg="${x}" aria-label="Vypočuť hlas">${ic('speaker',16)}</button>`
+        : `<span class="small muted" style="flex:1">Zariadenie zatiaľ nemá hlas pre tento jazyk.</span>`}</div>`; }).join('')}
+    <button class="btn sm" data-act="ctl" data-fn="refreshVoices">${ic('repeat',16)} Obnoviť zoznam hlasov</button>
+  </div></div>
+  <details class="howto"><summary>Ako pridať krajší hlas na iPhone</summary><ol>
+    <li>Otvor <b>Nastavenia</b> → <b>Prístupnosť</b> → <b>Hovorený obsah</b> → <b>Hlasy</b>.</li>
+    <li>Vyber jazyk a ťukni na ženský hlas: nemčina <b>Anna</b> alebo <b>Petra</b>, francúzština <b>Audrey</b> alebo <b>Aurélie</b>, španielčina <b>Mónica</b> alebo <b>Marisol</b>, portugalčina <b>Luciana</b> alebo <b>Fernanda</b>, ruština <b>Milena</b> alebo <b>Katya</b>.</li>
+    <li>Stiahni verziu <b>Vylepšený</b> alebo <b>Prémiový</b> (ikonka so šípkou). Môže mať aj niekoľko sto MB, preto cez Wi‑Fi.</li>
+    <li>Appku úplne zavri (v prepínači appiek ju potiahni nahor), otvor ju znova a tu ťukni na <b>Obnoviť zoznam hlasov</b>.</li>
+  </ol><p class="small muted">Hlasy Siri nemôže použiť žiadna appka v prehliadači, to je obmedzenie iPhonu. Na PC sú najkrajšie hlasy v prehliadači Edge (označené Natural).</p></details>
+  </section>` : ''}
+  <section class="sec"><h2 class="h2">Učenie</h2><div class="settings">
+    <div class="set"><label for="set-goal">Denný cieľ<small>Jedna lekcia je asi 30 XP</small></label><select id="set-goal" data-set="goal">${[[20,'20 XP · ~5 min'],[30,'30 XP · ~8 min'],[50,'50 XP · ~12 min'],[80,'80 XP · ~20 min']].map(o => `<option value="${o[0]}" ${S.goal === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></div>
+    <div class="set"><label for="set-per">Nové slovíčka v lekcii</label><select id="set-per" data-set="perLesson">${[3,5,8].map(n => `<option ${S.perLesson === n ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+    <div class="set"><label for="set-rate">Rýchlosť hlasu</label><select id="set-rate" data-set="rate">${[[0.75,'Pomalšie'],[0.9,'Učebná'],[1,'Prirodzená']].map(o => `<option value="${o[0]}" ${S.rate === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></div>
+    ${S.order.includes('ru') ? `<div class="set"><label for="set-tr">Prepis azbuky<small>Ruština aj latinkou</small></label><input type="checkbox" id="set-tr" data-set="translit" ${S.translit ? 'checked' : ''}></div>` : ''}
+    <div class="set col"><label>Jazyky v pase</label><div class="btnrow">${Object.keys(LANGS).map(x => `<label class="btn sm" style="gap:8px"><input type="checkbox" data-set="lang" value="${x}" ${S.order.includes(x) ? 'checked' : ''}> ${esc(LANGS[x].name)}</label>`).join('')}</div></div>
+  </div></section>
+  <section class="sec"><h2 class="h2">Záloha a prenos na PC</h2><div class="settings"><div class="set col">
+    <p class="small muted">Keď chceš pokračovať na PC alebo meníš mobil, ulož si zálohu a načítaj ju na druhom zariadení. Pokrok z oboch sa spojí, nič sa neprepíše.</p>
+    <div class="btnrow"><button class="btn sm" data-act="export">${ic('download',16)} Uložiť zálohu</button><button class="btn sm" data-act="copy-backup">${ic('copy',16)} Kopírovať</button><button class="btn sm" data-act="import-file">${ic('upload',16)} Načítať súbor</button><button class="btn sm" data-act="paste-backup">Vložiť text</button></div>
+    <p class="small muted">Posledná záloha: ${lb ? `${lb.getDate()}. ${lb.getMonth()+1}. ${lb.getFullYear()}` : 'zatiaľ žiadna'}</p>
+    <input type="file" id="imp-file" accept=".json,application/json,text/plain" hidden>
+  </div></div></section>
+  <section class="sec"><h2 class="h2">Ako appka funguje</h2><div class="faq">
+    <details><summary>Koľko miesta zaberá?</summary><p>Celá appka má približne 0,5 MB vrátane písma. Je to menej ako jedna fotka. Tvoj pokrok teraz zaberá ${storageKB()} kB.</p></details>
+    <details><summary>Kde sa ukladá môj pokrok?</summary><p>Priamo v tomto zariadení. Nikam sa neposiela a nepotrebuješ žiadny účet. Appka na ploche iPhonu má vlastnú pamäť, oddelenú od Safari, preto sa uč vždy cez ikonu na ploche.</p></details>
+    <details><summary>Funguje aj bez internetu?</summary><p>Áno. Pri prvom otvorení si appka uloží všetko potrebné. Lekcie, opakovanie, hry, príbehy aj hlasy (sú súčasťou iPhonu) potom fungujú offline, napríklad v lietadle alebo v metre. Internet je potrebný len na stiahnutie novej verzie. Tá sa nahrá sama, keď appku otvoríš s internetom.</p></details>
+    <details><summary>Môžem o pokrok prísť?</summary><p>Áno, ak appku z plochy zmažeš alebo vymažeš údaje Safari. Preto si raz za pár týždňov ulož zálohu, napríklad do appky Súbory alebo na iCloud Drive. Appka ti to sama pripomenie.</p></details>
+    <details><summary>Ako pridám vlastné slovíčka?</summary><p>V záložke Lekcie otvor Moje slovíčka a ťukni na Pridať slovíčko. Slová z príbehov pridáš ťuknutím na podčiarknuté slovo.</p></details>
+  </div></section>
+  <section class="sec"><h2 class="h2">Klávesnica</h2><div class="settings"><div class="set col"><p class="small muted">Nastavenia → Všeobecné → Klávesnica → Klávesnice → Pridať novú. S nemeckou máš ä, ö, ü a ß po ruke, s ruskou azbuku. Ruštinu ti appka uzná aj latinkou.</p></div></div></section>
+  <p class="foot">Jazykový pas ${VERSION}</p>`;
+}
+function settingsSheet(){
+  Sheet.show('Nastavenia');
+  const ctrl = {
+    isSettings:true,
+    paint(keep){ Sheet.body(settingsHTML(), keep); },
+    input(e){ const t = e.target; if (t.dataset && t.dataset.set === 'custom') { S.custom = Object.assign({}, CUSTOM_DEFAULT, S.custom || {}); S.custom[t.dataset.key] = t.value; applyTheme(S.active); } },
+    refreshVoices(){ Speech.refresh(); ctrl.paint(true); toast(`Načítané hlasy: ${Speech.voices.length}`); }
+  };
+  Sheet.ctrl = ctrl; ctrl.paint(false);
+}
 function applySetting(k, el){
   if (k === 'goal' || k === 'perLesson') S[k] = parseInt(el.value, 10);
   else if (k === 'rate') S.rate = parseFloat(el.value);
   else if (k === 'translit') S.translit = el.checked;
+  else if (k === 'langAccent') S.langAccent = el.checked;
+  else if (k === 'custom') { S.custom = Object.assign({}, CUSTOM_DEFAULT, S.custom || {}); S.custom[el.dataset.key] = el.value; }
   else if (k === 'voice') { S.voices = S.voices || {}; const x = el.dataset.lang; if (el.value) S.voices[x] = el.value; else delete S.voices[x]; save('settings'); Speech.say(SAMPLE[x], x); toast('Hlas zmenený.'); return; }
   else if (k === 'lang') {
     const x = el.value;
     if (el.checked) { if (!S.order.includes(x)) S.order.push(x); }
     else { if (S.order.length <= 1) { el.checked = true; toast('Aspoň jeden jazyk musí zostať.'); return; } S.order = S.order.filter(y => y !== x); if (S.active === x) S.active = S.order[0]; }
   }
-  save('settings'); render(); toast('Uložené.');
+  save('settings'); render();
+  if (Sheet.open && Sheet.ctrl && Sheet.ctrl.isSettings) Sheet.ctrl.paint(true);
+  if (k !== 'custom') toast('Uložené.');
 }
 
 /* ───────────── shell ───────────── */
-function applyTheme(c){ const k = LANGS[c].c, r = document.documentElement.style;
-  r.setProperty('--acc-l', k[0]); r.setProperty('--acc-d', k[1]); r.setProperty('--ink-l', k[2]); r.setProperty('--soft-l', k[3]); r.setProperty('--soft-d', k[4]); r.setProperty('--on-l', k[5]); r.setProperty('--on-d', k[6]); }
 function renderHeader(){
   const st = streak();
-  $('#top').innerHTML = `<div class="wrap top-in"><div class="top-row"><span class="brand"><span class="brand-mark">${esc(S.active.toUpperCase())}</span>Jazykový pas</span><span class="streak" title="Séria dní">${ic('flame',17)}${st}</span></div>
+  $('#top').innerHTML = `<div class="wrap top-in"><div class="top-row"><span class="brand"><span class="brand-mark">${esc(S.active.toUpperCase())}</span>Jazykový pas</span><span class="top-actions"><span class="streak" title="Séria dní">${ic('flame',17)}${st}</span><button class="icon-btn sm" data-act="settings" aria-label="Nastavenia">${ic('gear',18)}</button></span></div>
     <div class="chips">${S.order.map(x => { const d = dueItems(x).length; return `<button class="chip lc ${x === S.active ? 'on' : ''}" style="--la:${LANGS[x].c[0]};--lad:${LANGS[x].c[1]}" data-act="lang" data-arg="${x}" aria-pressed="${x === S.active}" aria-label="${esc(LANGS[x].name)}"><i class="dot"></i>${x.toUpperCase()}${d ? `<small>${d}</small>` : ''}</button>`; }).join('')}</div></div>`;
 }
 const TABS = [['today','Dnes','today'],['course','Lekcie','course'],['games','Hry','games'],['read','Čítanie','read'],['progress','Pokrok','progress']];
@@ -1019,22 +1145,26 @@ const ACT = {
   'add-word'(){ addWordSheet(S.active); },
   gloss(a){ openGloss(+a); },
   'pop-close'(){ closePop(); },
-  'pop-say'(a){ const s = CONTENT[S.active].story; if (s && s.glossary[+a]) Speech.say(s.glossary[+a].w, S.active); },
+  'pop-say'(a){ const s = curStory(S.active); if (s && s.glossary[+a]) Speech.say(s.glossary[+a].w, S.active); },
   'gloss-add'(a){
-    const c = S.active, s = CONTENT[c].story, g = s && s.glossary[+a]; if (!g) return;
+    const c = S.active, s = curStory(c), g = s && s.glossary[+a]; if (!g) return;
     P[c].custom.push({id:uid(), t:g.w, sk:g.sk, ex:sentenceWith(s.paragraphs.join(' '), g.w), exSk:''}); save(c);
     closePop(); render(); toast('Pridané do Mojich slovíčok. Naučíš sa ho v ďalšej lekcii.');
   },
-  'say-para'(a){ const s = CONTENT[S.active].story; if (s) Speech.say(s.paragraphs[+a], S.active); },
-  'read-all'(){ const s = CONTENT[S.active].story; if (s) Speech.say(s.title + '. ' + s.paragraphs.join(' '), S.active); },
-  'tr-para'(a){ const c = S.active; trOpen[c] = trOpen[c] || {}; trOpen[c][+a] = !trOpen[c][+a]; const y = window.scrollY; render(); window.scrollTo(0, y); },
+  'story-pick'(a){ const m = ls('read') || {}; m[S.active] = a; ls('read', m); render(); window.scrollTo(0, 0); },
+  'say-para'(a){ const s = curStory(S.active); if (s) Speech.say(s.paragraphs[+a], S.active); },
+  'read-all'(){ const s = curStory(S.active); if (s) Speech.say(s.title + '. ' + s.paragraphs.join(' '), S.active); },
+  'tr-para'(a){ const c = S.active, s = curStory(c); trOpen[c] = trOpen[c] || {}; const o = trOpen[c][s.title] = trOpen[c][s.title] || {}; o[+a] = !o[+a]; const y = window.scrollY; render(); window.scrollTo(0, y); },
   quiz(a){
-    const c = S.active, [qi, oi] = a.split(':').map(Number), s = CONTENT[c].story, st = P[c].story;
+    const c = S.active, [qi, oi] = a.split(':').map(Number), s = curStory(c), st = stState(c, s);
     st.answers = st.answers || {}; if (st.answers[qi] !== undefined) return; st.answers[qi] = oi;
     if (s.questions[qi] && s.questions[qi].answer === oi) { addXP(3); toast('Správne! +3 XP'); }
     save(c); const y = window.scrollY; render(); window.scrollTo(0, y);
   },
-  'story-done'(){ const c = S.active; if (P[c].story.done) return; P[c].story.done = true; addXP(10); logDay(c, 'g'); save(c); const y = window.scrollY; render(); window.scrollTo(0, y); toast('+10 XP za čítanie'); },
+  'story-done'(){ const c = S.active, st = stState(c, curStory(c)); if (st.done) return; st.done = true; addXP(10); logDay(c, 'g'); save(c); const y = window.scrollY; render(); window.scrollTo(0, y); toast('+10 XP za čítanie'); },
+  settings(){ settingsSheet(); },
+  theme(a){ S.theme = a; if (a === 'custom' && !S.custom) S.custom = Object.assign({}, CUSTOM_DEFAULT); save('settings'); render(); if (Sheet.ctrl && Sheet.ctrl.isSettings) Sheet.ctrl.paint(true); },
+  'backup-later'(){ S.backupSnooze = Date.now(); save('settings'); render(); },
   'voice-test'(a){ if (LANGS[a]) Speech.say(SAMPLE[a], a); },
   export(){ exportFile(); },
   'copy-backup'(){ copyBackup(); },
