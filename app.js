@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 
-const VERSION = '2.2';
+const VERSION = '2.3';
 const CONTENT = window.CONTENT || {};
 
 /* ───────────── helpers ───────────── */
@@ -48,6 +48,10 @@ const ICONS = {
   upload:'<path d="M12 20V9M7 14l5-5 5 5M5 4h14"/>',
   copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
   gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  chat:'<path d="M20.5 12a8.5 8.5 0 0 1-12.3 7.6L3.5 21l1.3-4.4A8.5 8.5 0 1 1 20.5 12z"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  test:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11l2 2 4-4M9 17h6"/>',
+  bell:'<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/>',
   dots:'<circle cx="5.5" cy="12" r="3" fill="var(--m)" stroke="none"/><circle cx="12" cy="12" r="3" fill="var(--f)" stroke="none"/><circle cx="18.5" cy="12" r="3" fill="var(--n)" stroke="none"/>'
 };
 const ic = (n, s) => `<svg class="ic" viewBox="0 0 24 24" width="${s||22}" height="${s||22}" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
@@ -57,11 +61,11 @@ function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add
 
 /* ───────────── languages ───────────── */
 const LANGS = {
-  de:{name:'Nemčina', in:'v nemčine', adv:'po nemecky', self:'Deutsch', loc:'de-DE', c:['#D08A00','#F2B33D','#865700','#FBEFD5','#3A2D12','#1E1503','#1E1503'], hello:['Guten Morgen!','Guten Tag!','Guten Abend!'], bravo:'Super gemacht!'},
-  fr:{name:'Francúzština', in:'vo francúzštine', adv:'po francúzsky', self:'Français', loc:'fr-FR', c:['#2F5BEA','#8AA5FF','#2448C4','#E4EAFF','#1C2648','#FFFFFF','#0D1633'], hello:['Bonjour !','Bonjour !','Bonsoir !'], bravo:'Bravo !'},
-  es:{name:'Španielčina', in:'v španielčine', adv:'po španielsky', self:'Español', loc:'es-ES', c:['#D9412F','#FF8777','#B3321F','#FCE4E0','#3F1C17','#FFFFFF','#2A0B07'], hello:['¡Buenos días!','¡Buenas tardes!','¡Buenas noches!'], bravo:'¡Muy bien!'},
-  pt:{name:'Portugalčina', in:'v portugalčine', adv:'po portugalsky', self:'Português (BR)', loc:'pt-BR', c:['#0F8A62','#48D3A2','#0A6E4E','#DBF3EA','#123629','#FFFFFF','#06281C'], hello:['Bom dia!','Boa tarde!','Boa noite!'], bravo:'Muito bem!'},
-  ru:{name:'Ruština', in:'v ruštine', adv:'po rusky', self:'Русский', loc:'ru-RU', c:['#6F45DB','#B096FF','#5A32C2','#ECE5FD','#2A2049','#FFFFFF','#1A0F3A'], hello:['Доброе утро!','Добрый день!','Добрый вечер!'], bravo:'Отлично!'}
+  de:{name:'Nemčina', in:'v nemčine', acc:'nemčinu', adv:'po nemecky', self:'Deutsch', loc:'de-DE', c:['#D08A00','#F2B33D','#865700','#FBEFD5','#3A2D12','#1E1503','#1E1503'], hello:['Guten Morgen!','Guten Tag!','Guten Abend!'], bravo:'Super gemacht!'},
+  fr:{name:'Francúzština', in:'vo francúzštine', acc:'francúzštinu', adv:'po francúzsky', self:'Français', loc:'fr-FR', c:['#2F5BEA','#8AA5FF','#2448C4','#E4EAFF','#1C2648','#FFFFFF','#0D1633'], hello:['Bonjour !','Bonjour !','Bonsoir !'], bravo:'Bravo !'},
+  es:{name:'Španielčina', in:'v španielčine', acc:'španielčinu', adv:'po španielsky', self:'Español', loc:'es-ES', c:['#D9412F','#FF8777','#B3321F','#FCE4E0','#3F1C17','#FFFFFF','#2A0B07'], hello:['¡Buenos días!','¡Buenas tardes!','¡Buenas noches!'], bravo:'¡Muy bien!'},
+  pt:{name:'Portugalčina', in:'v portugalčine', acc:'portugalčinu', adv:'po portugalsky', self:'Português (BR)', loc:'pt-BR', c:['#0F8A62','#48D3A2','#0A6E4E','#DBF3EA','#123629','#FFFFFF','#06281C'], hello:['Bom dia!','Boa tarde!','Boa noite!'], bravo:'Muito bem!'},
+  ru:{name:'Ruština', in:'v ruštine', acc:'ruštinu', adv:'po rusky', self:'Русский', loc:'ru-RU', c:['#6F45DB','#B096FF','#5A32C2','#ECE5FD','#2A2049','#FFFFFF','#1A0F3A'], hello:['Доброе утро!','Добрый день!','Добрый вечер!'], bravo:'Отлично!'}
 };
 const SAMPLE = {de:'Hallo! Schön, dich kennenzulernen. Wie geht es dir?', fr:'Bonjour ! Ravie de te rencontrer. Comment ça va ?', es:'¡Hola! Encantada de conocerte. ¿Qué tal?', pt:'Olá! Prazer em te conhecer. Tudo bem?', ru:'Привет! Рада познакомиться. Как дела?'};
 const CHARS = {de:['ä','ö','ü','ß'], fr:['é','è','ê','à','ç','ù','œ'], es:['á','é','í','ó','ú','ñ','¿','¡'], pt:['á','â','ã','à','ç','é','ê','ó','õ'], ru:[]};
@@ -103,8 +107,8 @@ for (const c in LANGS) {
 }
 
 /* ───────────── state & storage ───────────── */
-const DEFAULT = () => ({v:2, updatedAt:0, active:'de', order:['de','fr','es','pt','ru'], goal:30, perLesson:5, rate:0.9, translit:true, voices:{}, levels:{}, theme:'auto', langAccent:false, custom:null, days:{}, installHidden:false, lastBackup:0, backupSnooze:0});
-const emptyP = () => ({updatedAt:0, it:{}, custom:[], best:{}, st:{}, log:{d:'', l:0, r:0, g:0}});
+const DEFAULT = () => ({v:2, updatedAt:0, active:'de', order:['de','fr','es','pt','ru'], goal:30, perLesson:5, rate:0.9, translit:true, voices:{}, levels:{}, theme:'auto', langAccent:false, custom:null, why:null, whySkip:false, flags:{}, ach:{}, days:{}, installHidden:false, lastBackup:0, backupSnooze:0});
+const emptyP = () => ({updatedAt:0, it:{}, custom:[], best:{}, st:{}, dlg:{}, gram:{}, log:{d:'', l:0, r:0, g:0}});
 let S = DEFAULT();
 const P = {};
 let tab = ls('tab') || 'today';
@@ -166,12 +170,14 @@ function importText(txt){
     for (const id in (r.it || {})) { const a = l.it[id], b = r.it[id]; if (b && (!a || (b.last||0) > (a.last||0))) l.it[id] = b; }
     const ids = new Set(l.custom.map(x => x.id)); (r.custom || []).forEach(x => { if (x && !ids.has(x.id)) l.custom.push(x); });
     for (const k in (r.best || {})) l.best[k] = Math.max(l.best[k]||0, r.best[k]||0);
+    for (const f of ['dlg','gram']) { l[f] = l[f] || {}; for (const k in (r[f] || {})) l[f][k] = Math.max(l[f][k] || 0, r[f][k] || 0); }
     const rst = Object.assign({}, r.st || {}); if (r.story && (CONTENT[c] || {}).story) rst[CONTENT[c].story.title] = r.story;
     for (const t in rst) { const a = l.st[t] || {answers:{}, done:false}, b = rst[t] || {}; l.st[t] = {done:!!(a.done || b.done), answers:Object.assign({}, b.answers || {}, a.answers || {})}; }
     save(c);
   }
   for (const k in (rs.days || {})) S.days[k] = Math.max(S.days[k]||0, rs.days[k]||0);
-  if ((rs.updatedAt||0) > (S.updatedAt||0)) ['goal','perLesson','rate','translit','order','active','voices','levels','theme','langAccent','custom'].forEach(k => { if (rs[k] !== undefined) S[k] = rs[k]; });
+  S.ach = Object.assign({}, rs.ach || {}, S.ach || {}); S.flags = Object.assign({}, rs.flags || {}, S.flags || {});
+  if ((rs.updatedAt||0) > (S.updatedAt||0)) ['goal','perLesson','rate','translit','order','active','voices','levels','theme','langAccent','custom','why'].forEach(k => { if (rs[k] !== undefined) S[k] = rs[k]; });
   S.order = S.order.filter(c => LANGS[c]); if (!S.order.length) S.order = ['de']; if (!S.order.includes(S.active)) S.active = S.order[0];
   save('settings'); flush(); render(); toast('Záloha načítaná a spojená s týmto zariadením.');
   return true;
@@ -227,14 +233,28 @@ const Speech = {
     try { const a = new Audio(this.silentUrl()); a.setAttribute('playsinline', ''); a.volume = 1; const pr = a.play(); if (pr && pr.catch) pr.catch(() => {}); } catch(e) {}
     try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; this.synth.speak(u); } catch(e) {}
   },
-  say(text, c, slow, onResult){
+  altVoice(c){ const main = this.pick(c), vs = this.sorted(c).filter(v => !this.ROBOT.test(v.name) && v !== main); return vs.find(v => !this.female(v)) || vs[0] || main; },
+  sayLines(lines, c, onLine){
+    if (!this.synth || !lines.length) return; this.playback(); if (!this.unlocked) this.unlock();
+    try { this.synth.cancel(); } catch(e) {}
+    setTimeout(() => lines.forEach((l, i) => {
+      try {
+        const u = new SpeechSynthesisUtterance(plain(l.t)); u.lang = LANGS[c].loc;
+        const v = l.role === 1 ? this.altVoice(c) : this.pick(c); if (v) u.voice = v;
+        u.rate = Math.max(0.5, Math.min(1.3, S.rate || 1));
+        if (onLine) { u.onstart = () => onLine(i); if (i === lines.length - 1) u.onend = () => onLine(-1); }
+        this.synth.speak(u);
+      } catch(e) {}
+    }), 80);
+  },
+  say(text, c, slow, onResult, role){
     if (!this.synth) { if (onResult) onResult(false, 'nosynth'); return; }
     this.playback(); if (!this.unlocked) this.unlock();
     const go = () => {
       try {
         if (this.synth.paused) this.synth.resume();
         const u = new SpeechSynthesisUtterance(plain(text)); u.lang = LANGS[c].loc;
-        const v = this.pick(c); if (v) u.voice = v;
+        const v = role === 1 ? this.altVoice(c) : this.pick(c); if (v) u.voice = v;
         u.rate = Math.max(0.5, Math.min(1.3, (slow ? 0.7 : 1) * (S.rate || 1))); u.volume = 1;
         let done = false;
         const finish = (ok, why) => { if (done) return; done = true; clearTimeout(t); this.lastOk = ok; if (onResult) onResult(ok, why); else if (!ok && !this.warned) { this.warned = true; toast('Hlas sa nespustil. Skontroluj tichý režim a hlasitosť (Nastavenia → Vyskúšať zvuk).'); } };
@@ -617,7 +637,8 @@ function gameList(c){
     {id:'fill', icon:ic('fill'), t:'Doplň vetu', d:'Vyber slovo, ktoré do vety patrí', ok:sentPool(c).length >= 4},
     {id:'order', icon:ic('order'), t:'Poskladaj vetu', d:'Slovosled ťukaním na slová', ok:orderPool(c).length >= 3},
     {id:'dict', icon:ic('dict'), t:'Diktát', d:'Vypočuj si vetu a napíš ju', ok:Speech.can(c) && dictPool(c).length >= 3},
-    {id:'pairs', icon:ic('pairs'), t:'Páry', d:'Spoj slovo s prekladom na čas', ok:pairPool(c).length >= 5}
+    {id:'pairs', icon:ic('pairs'), t:'Páry', d:'Spoj slovo s prekladom na čas', ok:pairPool(c).length >= 5},
+    {id:'speak', icon:ic('mic'), t:'Hovor nahlas', d:Rec.can() ? 'Povieš vetu a appka ti povie, ako ti to išlo' : 'Nahraj sa a porovnaj sa so vzorom', ok:canSpeakPractice() && dictPool(c).length >= 3}
   ];
 }
 function tile(o){ return `<button class="tile" data-act="${o.act}" data-arg="${esc(o.arg||'')}" ${o.dis ? 'disabled' : ''}><span class="tile-ic">${o.icon}</span><b>${esc(o.t)}</b><small>${esc(o.d)}</small>${o.badge ? `<em class="badge">${esc(o.badge)}</em>` : ''}</button>`; }
@@ -802,8 +823,8 @@ function pairsGame(c){
 }
 function openGame(id){
   const c = S.active, g = gameList(c).find(x => x.id === id);
-  if (!g || !g.ok) { toast(id === 'dict' ? 'Diktát potrebuje hlas pre tento jazyk, ktorý tu chýba.' : 'Na túto hru zatiaľ nie je dosť naučených slov. Začni lekciou.'); return; }
-  ({gender:genderGame, fill:fillGame, order:orderGame, dict:dictGame, pairs:pairsGame})[id](c);
+  if (!g || !g.ok) { toast(id === 'speak' ? 'Tento prehliadač nepodporuje mikrofón.' : id === 'dict' ? 'Diktát potrebuje hlas pre tento jazyk, ktorý tu chýba.' : 'Na túto hru zatiaľ nie je dosť naučených slov. Začni lekciou.'); return; }
+  ({gender:genderGame, fill:fillGame, order:orderGame, dict:dictGame, pairs:pairsGame, speak:speakGame})[id](c);
 }
 
 /* ───────────── course: unit sheet & own words ───────────── */
@@ -901,11 +922,16 @@ function curStory(c){
   const L = lvn(userLevel(c) || 'A2'), unread = all.filter(s => !(P[c].st[s.title] || {}).done).sort((a, b) => Math.abs(lvn(a.level) - L) - Math.abs(lvn(b.level) - L));
   return all.find(s => s.title === want) || unread[0] || all[0];
 }
+function readSeg(mode){ return `<div class="seg2" role="tablist"><button class="${mode === 'stories' ? 'on' : ''}" data-act="read-mode" data-arg="stories" role="tab" aria-selected="${mode === 'stories'}">${ic('read',16)} Príbehy</button><button class="${mode === 'dialogs' ? 'on' : ''}" data-act="read-mode" data-arg="dialogs" role="tab" aria-selected="${mode === 'dialogs'}">${ic('chat',16)} Rozhovory</button></div>`; }
 function renderRead(view){
   const c = S.active, L = LANGS[c], all = storiesOf(c), s = curStory(c), used = new Set();
+  if ((ls('readMode') || 'stories') === 'dialogs') {
+    view.innerHTML = `<section class="read-head"><p class="eyebrow">Rozhovory · ${esc(L.name)}</p>${readSeg('dialogs')}<h1 class="h1">Hovor ako v skutočnosti</h1><p class="muted">Vypočuj si rozhovor zo skutočnej situácie a potom si zahraj svoju rolu. ${canSpeakPractice() ? 'Repliky môžeš povedať nahlas.' : ''}</p></section>`;
+    renderDialogs(view); return;
+  }
   if (!s) { view.innerHTML = `<p class="muted">Pre tento jazyk zatiaľ nie je príbeh.</p>`; return; }
   const sst = P[c].st[s.title] || {answers:{}, done:false}, ans = sst.answers || {}, open = (trOpen[c] || {})[s.title] || {};
-  view.innerHTML = `<section class="read-head"><p class="eyebrow">Čítanie · ${esc(L.name)} · ${all.filter(x => (P[c].st[x.title] || {}).done).length} z ${all.length} prečítaných</p>
+  view.innerHTML = `<section class="read-head"><p class="eyebrow">Čítanie · ${esc(L.name)} · ${all.filter(x => (P[c].st[x.title] || {}).done).length} z ${all.length} prečítaných</p>${readSeg('stories')}
     <div class="scn">${all.map(x => `<button class="${x.title === s.title ? 'on' : ''}" data-act="story-pick" data-arg="${esc(x.title)}" lang="${c}">${(P[c].st[x.title] || {}).done ? '✓ ' : ''}${esc(x.title)} <small>${esc(x.level)}</small></button>`).join('')}</div>
     <h1 class="h1" lang="${c}">${esc(s.title)}</h1>
     <div class="row-tools">${Speech.can(c) ? `<button class="btn sm" data-act="read-all">${ic('speaker',16)} Prečítať nahlas</button>` : ''}<span class="muted small">Úroveň ${esc(s.level)} · podčiarknuté slová si ťukni a ulož.</span></div></section>
@@ -928,6 +954,371 @@ function openGloss(gi){
   pop.hidden = false; Speech.say(g.w, c);
 }
 function closePop(){ $('#pop').hidden = true; $('#pop').innerHTML = ''; }
+
+/* ───────────── speaking: speech recognition & recording ───────────── */
+const Rec = {
+  SR: window.SpeechRecognition || window.webkitSpeechRecognition || null, active:null, broken:false,
+  can(){ return !!this.SR && !this.broken; },
+  listen(c, done){
+    if (!this.SR) { done('unsupported'); return; }
+    Speech.stop();
+    let finished = false, r;
+    const end = (err, alts) => { if (finished) return; finished = true; clearTimeout(t); this.active = null; done(err, alts); };
+    const t = setTimeout(() => { try { r && r.stop(); } catch(e) {} }, 9000);
+    try { r = new this.SR(); } catch(e) { end('error'); return; }
+    r.lang = LANGS[c].loc; r.interimResults = false; r.maxAlternatives = 3; r.continuous = false;
+    r.onresult = e => { const res = e.results && e.results[0]; end(null, res ? Array.from(res).map(a => a.transcript) : []); };
+    r.onerror = e => end((e && e.error) || 'error');
+    r.onend = () => end('no-speech');
+    try { r.start(); this.active = r; } catch(e) { end('error'); }
+  },
+  stop(){ try { if (this.active) this.active.abort ? this.active.abort() : this.active.stop(); } catch(e) {} this.active = null; }
+};
+const Recorder = {
+  mr:null, stream:null, chunks:[], url:null,
+  can(){ return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder); },
+  recording(){ return !!this.mr; },
+  async start(){
+    this.stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    let opts; try { if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported('audio/mp4')) opts = {mimeType:'audio/mp4'}; } catch(e) {}
+    this.mr = new MediaRecorder(this.stream, opts); this.chunks = [];
+    this.mr.ondataavailable = e => { if (e.data && e.data.size) this.chunks.push(e.data); };
+    this.mr.start();
+  },
+  stop(){
+    return new Promise(res => {
+      const mr = this.mr; if (!mr) return res(null);
+      mr.onstop = () => {
+        try { this.stream.getTracks().forEach(t => t.stop()); } catch(e) {}
+        if (this.url) URL.revokeObjectURL(this.url);
+        this.url = this.chunks.length ? URL.createObjectURL(new Blob(this.chunks, {type:mr.mimeType || 'audio/mp4'})) : null;
+        this.mr = null; res(this.url);
+      };
+      try { mr.stop(); } catch(e) { this.mr = null; res(null); }
+    });
+  },
+  play(){ if (!this.url) return; try { Speech.stop(); const a = new Audio(this.url); a.play().catch(() => {}); } catch(e) {} }
+};
+function stopMic(){ Rec.stop(); if (Recorder.recording()) Recorder.stop(); }
+function speechScore(heard, target){
+  const toks = x => norm(x).split(' ').filter(Boolean).map(w => strip(w));
+  const tw = toks(target); if (!tw.length) return 0;
+  let best = 0;
+  for (const h of (Array.isArray(heard) ? heard : [heard])) {
+    const pool = toks(h); let m = 0;
+    for (const w of tw) { const i = pool.indexOf(w); if (i >= 0) { m++; pool.splice(i, 1); } }
+    best = Math.max(best, Math.round(m / tw.length * 100));
+  }
+  return best;
+}
+const canSpeakPractice = () => Rec.can() || Recorder.can();
+function speakPanelHTML(label){
+  if (Rec.can()) return `<button class="btn btn-wide mic" data-act="ctl" data-fn="mic">${ic('mic',18)} ${esc(label || 'Povedz to nahlas')}</button><p class="small" id="mic-res" hidden></p>`;
+  if (Recorder.can()) return `<div class="btnrow"><button class="btn mic" data-act="ctl" data-fn="rec">${ic('mic',18)} <span id="rec-label">Nahraj sa</span></button><button class="btn" data-act="ctl" data-fn="playRec" id="rec-play" disabled>${ic('speaker',16)} Moja nahrávka</button></div>`;
+  return '';
+}
+/* Shared mic handlers for any sheet controller: getTarget() returns the sentence to say, onScore(score|null) runs once per attempt. */
+function speakMethods(c, getTarget, onScore){
+  return {
+    mic(){
+      const el = $('#mic-res'), b = $('.mic'); if (!el) return;
+      el.hidden = false; el.style.color = ''; el.textContent = 'Počúvam… hovor teraz.'; if (b) b.disabled = true;
+      Rec.listen(c, (err, alts) => {
+        if (b) b.disabled = false; const r = $('#mic-res'); if (!r) return;
+        if (err) {
+          r.style.color = 'var(--warn)';
+          if (['not-allowed','service-not-allowed','network','audio-capture','unsupported'].includes(err) && Recorder.can()) {
+            Rec.broken = true; const mb = $('.mic'); if (mb) mb.outerHTML = speakPanelHTML();
+            r.textContent = 'Rozpoznávanie reči tu nie je dostupné, tak sa radšej nahraj a porovnaj so vzorom.'; return;
+          }
+          r.textContent = (err === 'not-allowed' || err === 'service-not-allowed') ? 'Appka nemá prístup k mikrofónu alebo k diktovaniu. Na iPhone zapni Nastavenia → Všeobecné → Klávesnica → Diktovanie a povoľ mikrofón.'
+            : err === 'no-speech' ? 'Nič som nepočul. Ťukni znova a hovor zreteľne.' : 'Rozpoznávanie reči teraz nefunguje. Skús to znova.';
+          return;
+        }
+        const sc = speechScore(alts, getTarget());
+        r.style.color = sc >= 80 ? 'var(--good)' : sc >= 50 ? 'var(--warn)' : 'var(--bad)';
+        r.innerHTML = `<b>${sc >= 80 ? 'Výborne!' : sc >= 50 ? 'Skoro!' : 'Skús to ešte raz'} · ${sc} %</b><br><span class="muted">Počul som: „${esc(alts[0] || '')}“</span>`;
+        markFlag('speak'); if (onScore) onScore(sc);
+      });
+    },
+    async rec(){
+      const lab = $('#rec-label');
+      if (Recorder.recording()) {
+        const url = await Recorder.stop(); if (lab) lab.textContent = 'Nahraj sa znova';
+        const pb = $('#rec-play'); if (pb) pb.disabled = !url;
+        if (url) { Recorder.play(); markFlag('speak'); if (onScore) onScore(null); }
+        return;
+      }
+      try { Speech.stop(); await Recorder.start(); if (lab) lab.textContent = 'Zastaviť'; }
+      catch(e) { toast('Appka nemá prístup k mikrofónu. Povoľ ho v nastaveniach prehliadača.'); }
+    },
+    playRec(){ Recorder.play(); }
+  };
+}
+function markFlag(k){ S.flags = S.flags || {}; if (!S.flags[k]) { S.flags[k] = Date.now(); save('settings'); } }
+
+function speakGame(c){
+  const rounds = shuffle(dictPool(c)).slice(0, 5), st = {r:0, xp:0, scores:[], done:false};
+  Sheet.show('Hovor nahlas'); Sheet.cleanup = stopMic;
+  const ctrl = Object.assign({
+    draw(){
+      stopMic();
+      if (st.r >= rounds.length) { const avg = st.scores.length ? Math.round(st.scores.reduce((a, b) => a + b, 0) / st.scores.length) : null; return gameDone(c, {xp:st.xp, tiles:'speak', line:`${rounds.length} viet nahlas${avg != null ? ` · priemerne ${avg} %` : ''}`}); }
+      const k = rounds[st.r]; st.done = false; Sheet.progress(st.r / rounds.length, (st.r + 1) + ' / ' + rounds.length);
+      Sheet.body(`<div class="ex-q"><p class="eyebrow">Vypočuj si vetu a povedz ju nahlas</p><div class="flash-row"><p class="ex-sent" lang="${c}">${esc(k.t)}</p>${sayBtns(c)}</div>${trLine(c, k.t)}<p class="muted">${esc(k.sk)}</p></div>
+        <p class="small muted">${Rec.can() ? 'Appka porovná, čo povieš, so vzorom.' : 'Nahraj sa a porovnaj svoju výslovnosť so vzorom.'} Hovor pomaly a zreteľne.</p>
+        <div class="sheet-actions">${speakPanelHTML()}<button class="btn btn-primary btn-wide" data-act="ctl" data-fn="next">Ďalšia veta</button></div>`);
+      Speech.say(k.t, c);
+    },
+    say(arg){ Speech.say(rounds[st.r].t, c, /slow/.test(arg || '')); },
+    next(){ st.r++; ctrl.draw(); },
+    again(){ speakGame(c); }
+  }, speakMethods(c, () => rounds[st.r].t, sc => { if (st.done) return; st.done = true; const x = sc == null ? 2 : sc >= 80 ? 3 : sc >= 50 ? 2 : 1; st.xp += x; addXP(x); if (sc != null) st.scores.push(sc); }));
+  Sheet.ctrl = ctrl; ctrl.draw();
+}
+
+/* ───────────── dialogues (role-play) ───────────── */
+const dialogsOf = c => ((CONTENT[c] || {}).dialogues || []).slice().sort((a, b) => lvn(a.level) - lvn(b.level));
+function dialogSheet(c, id){
+  const d = dialogsOf(c).find(x => x.id === id); if (!d) return;
+  const L = lvn(userLevel(c) || d.level), st = {mode:'menu', i:0, shown:[], res:{}, open:{}, xp:0, ok:0, mine:0, cur:null};
+  Sheet.show(d.title); Sheet.cleanup = () => { stopMic(); Speech.stop(); };
+  const bubble = (i, mark) => { const l = d.lines[i]; return `<div class="msg ${l[0] === 1 ? 'me' : 'them'} ${mark || ''}"><span class="who">${esc(d.roles[l[0]])}</span><p class="t" lang="${c}">${esc(l[1])}</p>${trLine(c, l[1])}${st.open[i] ? `<p class="sk">${esc(l[2])}</p>` : ''}
+    <div class="msg-tools">${Speech.can(c) ? `<button class="link" data-act="ctl" data-fn="sayLine" data-arg="${i}">${ic('speaker',14)} Vypočuť</button>` : ''}<button class="link" data-act="ctl" data-fn="trLine" data-arg="${i}">${st.open[i] ? 'Skryť preklad' : 'Preklad'}</button></div></div>`; };
+  const ctrl = Object.assign({
+    menu(){
+      st.mode = 'menu'; Sheet.progress(0, '');
+      Sheet.body(`<div class="intro"><p><span class="lvtag">${d.level}</span></p><h2 class="h1">${esc(d.title)}</h2><p class="muted">${esc(d.scene)}</p>
+        <p class="small muted">Rozprávaš sa s postavou „${esc(d.roles[0])}“. Najprv si rozhovor vypočuj a prečítaj, potom si zahraj svoju rolu${canSpeakPractice() ? ' a repliky hovor nahlas' : ''}.</p></div>
+        <div class="sheet-actions"><button class="btn btn-wide" data-act="ctl" data-fn="listen">${ic('speaker',18)} 1. Vypočuť a prečítať</button><button class="btn btn-primary btn-wide" data-act="ctl" data-fn="play">${ic('chat',18)} 2. Zahrať si rolu</button></div>`);
+    },
+    listen(keep){
+      st.mode = 'listen'; Sheet.progress(1, '');
+      Sheet.body(`<div class="dlg">${d.lines.map((l, i) => bubble(i)).join('')}</div>
+        <div class="sheet-actions">${Speech.can(c) ? `<button class="btn btn-wide" data-act="ctl" data-fn="playAll">${ic('speaker',18)} Prehrať celý rozhovor</button>` : ''}<button class="btn btn-primary btn-wide" data-act="ctl" data-fn="play">${ic('chat',18)} Zahrať si rolu</button></div>`, keep === true);
+    },
+    playAll(){ Speech.sayLines(d.lines.map(l => ({t:l[1], role:l[0]})), c, i => document.querySelectorAll('.dlg .msg').forEach((m, j) => m.classList.toggle('speaking', j === i))); },
+    sayLine(i){ const l = d.lines[+i]; Speech.say(l[1], c, false, null, l[0]); },
+    trLine(i){ st.open[+i] = !st.open[+i]; if (st.mode === 'listen') ctrl.listen(true); else ctrl.paint(true); },
+    play(){ st.mode = 'play'; st.i = 0; st.shown = []; st.res = {}; st.xp = 0; st.ok = 0; st.mine = d.lines.filter(l => l[0] === 1).length; ctrl.advance(); },
+    advance(){
+      stopMic();
+      const said = [];
+      while (st.i < d.lines.length && d.lines[st.i][0] === 0) { st.shown.push(st.i); said.push(st.i); st.i++; }
+      if (st.i >= d.lines.length) { ctrl.paint(false); if (said.length) Speech.sayLines(said.map(j => ({t:d.lines[j][1], role:0})), c); return setTimeout(() => ctrl.finish(), said.length ? 400 : 0); }
+      const target = d.lines[st.i][1], words = target.trim().split(/\s+/);
+      let bank = shuffle(words.map((w, k) => k)); if (bank.length > 1 && bank.every((v, k) => v === k)) bank.reverse();
+      st.cur = {answered:false, words, bank, placed:[], typing:L >= 3, res:null};
+      ctrl.paint(false);
+      if (said.length) Speech.sayLines(said.map(j => ({t:d.lines[j][1], role:0})), c);
+    },
+    paint(keep){
+      const cur = st.cur, n = d.lines.filter((l, j) => l[0] === 1 && j < st.i).length + 1;
+      const log = st.shown.map(j => bubble(j, d.lines[j][0] === 1 ? (st.res[j] === 'bad' ? 'bad' : 'ok') : '')).join('');
+      let turn = '';
+      if (cur && st.i < d.lines.length) {
+        const l = d.lines[st.i];
+        if (!cur.answered) {
+          const input = cur.typing
+            ? `<input id="ans" class="input" lang="${c}" autocomplete="off" autocapitalize="sentences" autocorrect="off" spellcheck="false" placeholder="${c === 'ru' ? 'Azbukou alebo latinkou' : 'Napíš svoju repliku'}">${(CHARS[c] || []).length ? `<div class="btnrow">${CHARS[c].map(ch => `<button class="btn sm" data-act="ctl" data-fn="ins" data-arg="${ch}">${ch}</button>`).join('')}</div>` : ''}`
+            : `<div class="ord-line">${cur.placed.map((wi, pos) => `<button class="wtile" lang="${c}" data-act="ctl" data-fn="unplace" data-arg="${pos}">${esc(cur.words[wi])}</button>`).join('') || '<span class="muted ord-ph">Ťukaj na slová v správnom poradí</span>'}</div><div class="ord-bank">${cur.bank.map((wi, pos) => `<button class="wtile" lang="${c}" data-act="ctl" data-fn="place" data-arg="${pos}">${esc(cur.words[wi])}</button>`).join('')}</div>`;
+          turn = `<div class="yourturn"><p class="eyebrow">Tvoja replika ${n} z ${st.mine} · ${esc(LANGS[c].adv)}</p><p class="ex-sk">${esc(l[2])}</p>${input}
+            <div class="sheet-actions"><button class="btn btn-primary btn-wide" data-act="ctl" data-fn="check" ${!cur.typing && cur.bank.length ? 'disabled' : ''}>Skontrolovať</button>${speakPanelHTML('Alebo to povedz nahlas')}<button class="link center" data-act="ctl" data-fn="reveal">Neviem, ukáž mi to</button></div></div>`;
+        } else {
+          turn = `<div class="fb ${cur.res}"><p class="fb-h">${cur.res === 'ok' ? pickOne(PRAISE) : cur.res === 'near' ? 'Skoro!' : 'Správne je:'}</p><p class="fb-a"><b lang="${c}">${esc(l[1])}</b></p>${cur.msg ? `<p class="small">${esc(cur.msg)}</p>` : ''}
+            <div class="fb-row">${Speech.can(c) ? `<button class="speak" data-act="ctl" data-fn="sayLine" data-arg="${st.i}" aria-label="Prehrať">${ic('speaker',18)}</button>` : ''}<button class="btn btn-primary" data-act="ctl" data-fn="next">Pokračovať</button></div></div>`;
+        }
+      }
+      Sheet.progress(st.i / d.lines.length, '');
+      Sheet.body(`<div class="dlg">${log}</div>${turn}`, keep);
+      if (!keep) requestAnimationFrame(() => { const sh = $('#sheet'); sh.scrollTo({top:sh.scrollHeight, behavior:'smooth'}); });
+      if (cur && cur.typing && !cur.answered && !keep) { const a = $('#ans'); if (a && FINE) a.focus({preventScroll:true}); }
+    },
+    place(pos){ const cur = st.cur; if (!cur || cur.answered) return; cur.placed.push(cur.bank.splice(+pos, 1)[0]); ctrl.paint(true); },
+    unplace(pos){ const cur = st.cur; if (!cur || cur.answered) return; cur.bank.push(cur.placed.splice(+pos, 1)[0]); ctrl.paint(true); },
+    ins(ch){ const a = $('#ans'); if (!a) return; const s0 = a.selectionStart == null ? a.value.length : a.selectionStart; a.value = a.value.slice(0, s0) + ch + a.value.slice(a.selectionEnd == null ? s0 : a.selectionEnd); a.focus(); },
+    check(){
+      const cur = st.cur; if (!cur || cur.answered) return; const target = d.lines[st.i][1];
+      let res;
+      if (cur.typing) { const v = ($('#ans') || {}).value || ''; if (!v.trim()) { toast('Napíš repliku, alebo ťukni na Neviem.'); return; } res = check(v, target, c); if (res === 'bad' && speechScore(v, target) >= 85) { res = 'near'; cur.msg = 'Takmer presne, pozri sa na drobnosti.'; } }
+      else res = norm(cur.placed.map(i => cur.words[i]).join(' ')) === norm(target) ? 'ok' : 'bad';
+      ctrl.answer(res);
+    },
+    reveal(){ if (st.cur && !st.cur.answered) ctrl.answer('bad'); },
+    answer(res){
+      const cur = st.cur; cur.answered = true; cur.res = res; st.res[st.i] = res;
+      if (res !== 'bad') { st.ok++; st.xp += 2; addXP(2); }
+      ctrl.paint(true); requestAnimationFrame(() => { const sh = $('#sheet'); sh.scrollTo({top:sh.scrollHeight, behavior:'smooth'}); });
+      Speech.say(d.lines[st.i][1], c, false, null, 1);
+    },
+    next(){ if (!st.cur || !st.cur.answered) return; st.shown.push(st.i); st.i++; st.cur = null; ctrl.advance(); },
+    key(e){
+      if (st.mode !== 'play' || !st.cur) return;
+      if (e.key === 'Enter') { e.preventDefault(); if (st.cur.answered) ctrl.next(); else ctrl.check(); }
+    },
+    finish(){
+      P[c].dlg = P[c].dlg || {}; P[c].dlg[d.id] = Math.max(P[c].dlg[d.id] || 0, st.mine ? Math.round(st.ok / st.mine * 100) : 100);
+      addXP(5); st.xp += 5; logDay(c, 'g'); save(c);
+      Sheet.progress(1, '');
+      Sheet.body(doneHTML({c, xp:st.xp, title:st.ok === st.mine ? praise(c) : 'Rozhovor zvládnutý', line:`${st.ok} z ${st.mine} replík správne`,
+        actions:`<button class="btn btn-wide" data-act="ctl" data-fn="play">Zahrať znova</button><button class="btn btn-wide" data-act="ctl" data-fn="listen">Prečítať celý rozhovor</button>`}));
+    }
+  }, speakMethods(c, () => d.lines[st.i] ? d.lines[st.i][1] : '', sc => { if (sc != null && sc >= 70 && st.cur && !st.cur.answered) { st.cur.msg = `Povedal si to na ${sc} %.`; ctrl.answer('ok'); } }));
+  Sheet.ctrl = ctrl; ctrl.menu();
+}
+function renderDialogs(view){
+  const c = S.active, L = LANGS[c], all = dialogsOf(c), done = P[c].dlg || {};
+  view.innerHTML += all.length ? `<div class="units">${all.map(d => `<button class="unit ${done[d.id] != null ? 'full' : ''}" data-act="dialog" data-arg="${esc(d.id)}"><span class="unit-n">${done[d.id] != null ? ic('check',20) : ic('chat',20)}</span><b>${esc(d.title)}</b><span class="cnt">${d.level}</span><small>${esc(d.scene)}${done[d.id] != null ? ` · ${done[d.id]} %` : ''}</small></button>`).join('')}</div>
+    <p class="foot">Rozhovory trénujú to, čo ľudia pri učení chcú najviac: rozumieť a odpovedať v skutočnej situácii.</p>` : `<p class="muted">Pre ${esc(L.name.toLowerCase())} zatiaľ nie sú rozhovory.</p>`;
+}
+
+/* ───────────── placement test ───────────── */
+function placementTest(c){
+  const levels = LEVELS.map(l => l.id).filter(id => UNITS[c].some(u => u.level === id));
+  const st = {li:0, qi:0, ok:0, res:{}, qs:[], opts:[], answered:false};
+  Sheet.show('Vstupný test · ' + LANGS[c].name);
+  const ctrl = {
+    intro(){ Sheet.body(`<div class="intro"><h2 class="h1">Zistíme tvoju úroveň</h2><p class="muted">Ukážem ti slovíčka a frázy od najľahších po najťažšie. Pri každom vyber správny preklad. Keď to začne byť priťažké, test skončí. Trvá 1 až 3 minúty.</p><p class="small muted">Ak niečo nevieš, ťukni na Neviem. Hádanie by výsledok skreslilo.</p></div>
+      <div class="sheet-actions"><button class="btn btn-primary btn-wide" data-act="ctl" data-fn="start">Začať test</button></div>`); },
+    start(){ st.li = 0; st.res = {}; ctrl.level(); },
+    level(){ if (st.li >= levels.length) return ctrl.finish(); st.qs = shuffle(UNITS[c].filter(u => u.level === levels[st.li]).flatMap(u => u.items)).slice(0, 4); st.qi = 0; st.ok = 0; ctrl.q(); },
+    q(){
+      if (st.qi >= st.qs.length) { st.res[levels[st.li]] = st.ok; if (st.ok < 3) return ctrl.finish(); st.li++; return ctrl.level(); }
+      const it = st.qs[st.qi]; st.opts = shuffle([it].concat(distract(it, 3, 't'))); st.answered = false;
+      Sheet.progress((st.li * 4 + st.qi) / (levels.length * 4), levels[st.li]);
+      Sheet.body(`<div class="ex-q"><p class="eyebrow">Úroveň ${levels[st.li]} · otázka ${st.qi + 1} zo 4</p><p class="ex-sk">${esc(it.sk)}</p><p class="muted small">Ako sa to povie ${esc(LANGS[c].adv)}?</p></div>
+        <div class="opts">${st.opts.map((o, i) => `<button class="opt2 t" lang="${c}" data-act="ctl" data-fn="pick" data-arg="${i}"><span class="k">${i + 1}</span><span>${fmtT(o)}</span></button>`).join('')}</div>
+        <div class="sheet-actions"><button class="btn btn-wide" data-act="ctl" data-fn="pick" data-arg="-1">Neviem</button></div>`);
+    },
+    pick(i){ if (st.answered) return; st.answered = true; i = +i; if (i >= 0 && st.opts[i] && st.opts[i].id === st.qs[st.qi].id) st.ok++; st.qi++; ctrl.q(); },
+    key(e){ if (e.key.length === 1 && '1234'.includes(e.key)) ctrl.pick(+e.key - 1); },
+    finish(){
+      let passed = -1; for (let k = 0; k < levels.length; k++) { if ((st.res[levels[k]] || 0) >= 3) passed = k; else break; }
+      const suggest = passed < 0 ? levels[0] : (levels[passed + 1] || levels[passed]);
+      markFlag('test');
+      Sheet.progress(1, '');
+      Sheet.body(`<div class="finish"><div class="stamp"><span>${esc(LANGS[c].self)}</span><b>${suggest}</b><span>${esc(lvName(suggest))}</span></div>
+        <h2 class="h1">Odporúčam úroveň ${suggest}</h2>
+        <p class="muted">${levels.filter(lv => st.res[lv] != null).map(lv => `${lv}: ${st.res[lv]}/4`).join(' · ')}</p>
+        <p class="small muted">${passed < 0 ? 'Začni od základov, pôjde to rýchlo.' : `Slovíčka do úrovne ${levels[passed]} väčšinou poznáš. Tie, ktoré nevieš, nájdeš v Lekciách ako voliteľné.`}</p>
+        <div class="sheet-actions" style="width:100%"><button class="btn btn-primary btn-wide" data-act="set-level" data-arg="${suggest}">Nastaviť ${suggest}</button><button class="btn btn-wide" data-act="level-sheet">Vybrať inú úroveň</button></div></div>`);
+    }
+  };
+  Sheet.ctrl = ctrl; ctrl.intro();
+}
+
+/* ───────────── grammar mini-lessons ───────────── */
+const grammarOf = c => ((CONTENT[c] || {}).grammar || []).slice().sort((a, b) => lvn(a.level) - lvn(b.level));
+function grammarSheet(c, id){
+  const all = grammarOf(c), g = all.find(x => x.id === id); if (!g) return;
+  const st = {r:0, ok:0, xp:0, answered:false, picked:-1, opts:[], qs:[]};
+  Sheet.show('Gramatika · ' + g.title);
+  const others = [...new Set(all.flatMap(x => x.practice.map(p => splitCloze(p[0])[1])))];
+  const ctrl = {
+    explain(){
+      Sheet.progress(0, '');
+      Sheet.body(`<div class="intro"><p><span class="lvtag">${g.level}</span></p><h2 class="h1">${esc(g.title)}</h2><p class="muted">${esc(g.intro)}</p></div>
+        <ul class="gpoints">${g.points.map(pt => `<li>${esc(pt)}</li>`).join('')}</ul>
+        <div class="sheet-actions"><button class="btn btn-primary btn-wide" data-act="ctl" data-fn="practice">Precvičiť (${g.practice.length})</button></div>`);
+    },
+    practice(){ st.qs = shuffle(g.practice); st.r = 0; st.ok = 0; st.xp = 0; ctrl.draw(); },
+    draw(){
+      if (st.r >= st.qs.length) return ctrl.finish();
+      const ans = splitCloze(st.qs[st.r][0])[1];
+      const local = g.practice.map(p => splitCloze(p[0])[1]).filter(x => norm(x) !== norm(ans));
+      const pool = [...new Set(shuffle(local).concat(shuffle(others)))].filter(x => norm(x) !== norm(ans));
+      st.opts = shuffle([ans].concat(pool.slice(0, 3))); st.answered = false; st.picked = -1;
+      Sheet.progress(st.r / st.qs.length, (st.r + 1) + ' / ' + st.qs.length); ctrl.paint(false);
+    },
+    paint(keep){
+      const q = st.qs[st.r], [a, ans, b] = splitCloze(q[0]);
+      Sheet.body(`<div class="ex-q"><p class="eyebrow">Doplň správny tvar</p><p class="ex-sent" lang="${c}">${esc(a)}${st.answered ? `<mark class="hl">${esc(ans)}</mark>` : `<span class="blank" style="width:${(ans.length * 0.55 + 0.8).toFixed(1)}em"></span>`}${esc(b)}</p>${st.answered ? trLine(c, q[0]) : ''}<p class="muted">${esc(q[1])}</p></div>
+        <div class="opts">${st.opts.map((o, i) => { let cls = ''; if (st.answered) { if (o === ans) cls = 'right'; else if (i === st.picked) cls = 'wrong'; } return `<button class="opt2 t ${cls}" lang="${c}" data-act="ctl" data-fn="pick" data-arg="${i}" ${st.answered ? 'disabled' : ''}><span class="k">${i + 1}</span><span>${esc(o)}</span></button>`; }).join('')}</div>
+        ${st.answered ? `<div class="fb ${st.right ? 'ok' : 'bad'}"><p class="fb-h">${st.right ? pickOne(PRAISE) : 'Nie celkom.'}</p>${q[2] ? `<p class="small">${esc(q[2])}</p>` : ''}<div class="fb-row">${Speech.can(c) ? `<button class="speak" data-act="ctl" data-fn="say" aria-label="Prehrať">${ic('speaker',18)}</button>` : ''}<button class="btn btn-primary" data-act="ctl" data-fn="next">Pokračovať</button></div></div>` : ''}`, keep);
+    },
+    pick(i){ if (st.answered) return; st.picked = +i; st.answered = true; st.right = st.opts[+i] === splitCloze(st.qs[st.r][0])[1]; if (st.right) { st.ok++; st.xp += 2; addXP(2); } ctrl.paint(true); Speech.say(st.qs[st.r][0], c); },
+    say(){ Speech.say(st.qs[st.r][0], c); },
+    next(){ st.r++; ctrl.draw(); },
+    key(e){ if (!st.answered && e.key.length === 1 && '1234'.includes(e.key)) ctrl.pick(+e.key - 1); else if (st.answered && e.key === 'Enter') { e.preventDefault(); ctrl.next(); } },
+    finish(){
+      const pct = Math.round(st.ok / st.qs.length * 100); P[c].gram = P[c].gram || {}; P[c].gram[g.id] = Math.max(P[c].gram[g.id] || 0, pct); save(c); logDay(c, 'g');
+      Sheet.progress(1, '');
+      Sheet.body(doneHTML({c, xp:st.xp, title:pct >= 75 ? praise(c) : 'Ešte raz a budeš to mať', line:`${st.ok} z ${st.qs.length} správne`,
+        actions:`<button class="btn btn-wide" data-act="ctl" data-fn="explain">Pozrieť vysvetlenie</button><button class="btn btn-wide" data-act="ctl" data-fn="practice">Precvičiť znova</button>`}));
+    }
+  };
+  Sheet.ctrl = ctrl; ctrl.explain();
+}
+
+/* ───────────── goals, achievements, reminder ───────────── */
+const GOALS = [
+  {id:'travel', name:'Cestovanie', units:'zaklady bases basicos basico osnovy mesto ville ciudad cidade gorod hotel jedlo cafe comida eda nakup achats compras pokupki pocasie otazky questions preguntas perguntas voprosy'},
+  {id:'work', name:'Práca a kariéra', units:'praca travail trabajo trabalho rabota kariera formalne formel formal ofits technika diskusia debat debate diskussiya medien'},
+  {id:'people', name:'Priatelia a rodina', units:'rodina gens gente pessoas semja volno loisirs ocio lazer dosug pocity sentiments sentimientos sentimentos chuvstva frazy expressions expresiones expressoes frazy2'},
+  {id:'culture', name:'Filmy, knihy, kultúra', units:'medien idiomy idiomes modismos expressoes2 nuansy familier coloquial girias razgovor svet abstrakt'},
+  {id:'move', name:'Presťahovanie sa', units:'byvanie maison casa dom zdravie sante salud saude zdorovje praca travail trabajo trabalho rabota formalne formel formal ofits oblecenie'},
+  {id:'fun', name:'Pre radosť', units:''}
+];
+const goalUnits = () => { const g = GOALS.find(x => x.id === S.why); return g ? g.units.split(' ').filter(Boolean) : []; };
+const ACH = [
+  {id:'first', n:'Prvá lekcia', d:'Nauč sa prvé slovíčka', t:s => s.words >= 1},
+  {id:'w50', n:'50 slovíčok', d:'Nauč sa 50 slovíčok', t:s => s.words >= 50},
+  {id:'w150', n:'150 slovíčok', d:'Nauč sa 150 slovíčok', t:s => s.words >= 150},
+  {id:'w300', n:'300 slovíčok', d:'Nauč sa 300 slovíčok', t:s => s.words >= 300},
+  {id:'w600', n:'600 slovíčok', d:'Nauč sa 600 slovíčok', t:s => s.words >= 600},
+  {id:'w1000', n:'1000 slovíčok', d:'Nauč sa 1000 slovíčok', t:s => s.words >= 1000},
+  {id:'s3', n:'3 dni v rade', d:'Uč sa 3 dni po sebe', t:s => s.streak >= 3},
+  {id:'s7', n:'Týždeň v kuse', d:'Uč sa 7 dní po sebe', t:s => s.streak >= 7},
+  {id:'s30', n:'Mesiac v kuse', d:'Uč sa 30 dní po sebe', t:s => s.streak >= 30},
+  {id:'story', n:'Čitateľ', d:'Prečítaj prvý príbeh', t:s => s.stories >= 1},
+  {id:'stories5', n:'Knihomoľ', d:'Prečítaj 5 príbehov', t:s => s.stories >= 5},
+  {id:'dlg', n:'Prvý rozhovor', d:'Zahraj si rolu v rozhovore', t:s => s.dialogs >= 1},
+  {id:'speak', n:'Odvaha hovoriť', d:'Povedz prvú vetu nahlas', t:() => !!(S.flags || {}).speak},
+  {id:'gram', n:'Gramatik', d:'Precvič 3 témy gramatiky', t:s => s.gram >= 3},
+  {id:'test', n:'Vstupný test', d:'Urob si vstupný test', t:() => !!(S.flags || {}).test},
+  {id:'poly', n:'Polyglot', d:'Nauč sa 20 slovíčok v 3 jazykoch', t:s => s.langs20 >= 3},
+  {id:'xp1000', n:'1000 XP', d:'Nazbieraj 1000 XP', t:s => s.xp >= 1000}
+];
+function achStats(){
+  let words = 0, stories = 0, dialogs = 0, gram = 0, langs20 = 0;
+  for (const x in LANGS) { const n = Object.keys(P[x].it).length; words += n; if (n >= 20) langs20++; stories += Object.values(P[x].st || {}).filter(v => v && v.done).length; dialogs += Object.keys(P[x].dlg || {}).length; gram += Object.keys(P[x].gram || {}).length; }
+  return {words, stories, dialogs, gram, langs20, streak:streak(), xp:totalXP()};
+}
+let achBusy = false;
+function checkAch(){
+  if (achBusy) return; achBusy = true;
+  try {
+    S.ach = S.ach || {}; const s = achStats(), got = [];
+    for (const a of ACH) if (!S.ach[a.id] && a.t(s)) { S.ach[a.id] = Date.now(); got.push(a); }
+    if (got.length) { save('settings'); setTimeout(() => toast('Nová pečiatka v pase: ' + got.map(a => a.n).join(', ')), 600); }
+  } finally { achBusy = false; }
+}
+function achHTML(){
+  S.ach = S.ach || {}; const n = ACH.filter(a => S.ach[a.id]).length;
+  return `<section class="sec"><h2 class="h2">Pečiatky v pase · ${n} z ${ACH.length}</h2><div class="ach-grid">${ACH.map((a, i) => { const on = !!S.ach[a.id], dt = on ? new Date(S.ach[a.id]) : null;
+    return `<div class="ach ${on ? 'on' : ''}" style="--rot:${(i % 5 - 2) * 4}deg" title="${esc(a.d)}"><span class="ach-ring"><b>${esc(a.n)}</b>${on ? `<small>${dt.getDate()}. ${dt.getMonth() + 1}.</small>` : ''}</span><small class="ach-d">${esc(a.d)}</small></div>`; }).join('')}</div></section>`;
+}
+const REM_TIMES = ['07:00','08:00','12:00','17:00','18:00','19:00','20:00','21:00'];
+function guideHTML(){
+  const s = achStats(), c = S.active, cur = Object.keys(P[c].it).length, pct = Math.min(100, cur / 2000 * 100);
+  const hours = {es:'asi 600', pt:'asi 600', fr:'asi 750', de:'asi 900', ru:'asi 1 100'}[c];
+  return `<section class="sec"><h2 class="h2">Ako sa naučiť jazyk najrýchlejšie</h2>
+    <div class="settings"><div class="set col">
+      <b>${esc(LANGS[c].name)}: vieš ${cur} ${slovicok(cur)}</b>
+      <div class="seg lc" style="--la:var(--accent);--lad:var(--accent)"><i style="width:${pct.toFixed(1)}%"></i></div>
+      <p class="small muted">Na bežný rozhovor treba podľa výskumov asi 2 000 až 3 000 najčastejších slov. S nimi rozumieš zhruba 95 % toho, čo ľudia hovoria. Čím častejšie slovo, tým skôr ho appka ponúkne.</p>
+    </div></div>
+    <ol class="method">
+      <li><b>Každý deň, aj keď len 15 minút</b><span>Pravidelnosť porazí dlhé maratóny. Pamäť sa upevňuje v spánku a rozložené opakovanie ti šetrí čas.</span></li>
+      <li><b>Najprv najčastejšie slová a celé frázy</b><span>Malé slová (kto, kde, ešte, už) a hotové frázy použiješ stokrát denne. Preto sú v lekciách skôr než zriedkavé slová.</span></li>
+      <li><b>Veľa počúvaj a čítaj</b><span>Príbehy a rozhovory, ktorým rozumieš z väčšej časti. Mozog sa jazyk učí hlavne z porozumenia.</span></li>
+      <li><b>Hovor nahlas od prvého dňa</b><span>Ľudia chcú pri učení najviac vedieť rozprávať, ale práve to v appkách precvičujú najmenej. Zahraj si rozhovory a opakuj vety nahlas, rozvážeš si jazyk aj ostych.</span></li>
+      <li><b>Chyby sú v poriadku</b><span>Kto sa nebojí chýb, učí sa rýchlejšie. Chybné slovíčko sa ti vráti skôr a o to lepšie si ho zapamätáš.</span></li>
+      <li><b>Jazyk do bežného dňa</b><span>Prepni si telefón do jazyka, pusti si seriál s titulkami, nájdi si partnera na rozhovor. Appka je základ, skutočný život je tréning.</span></li>
+    </ol>
+    <p class="small muted">Americký inštitút FSI odhaduje, že rodený Angličan potrebuje na dobrú pracovnú úroveň ${hours} hodín výučby pre ${esc(LANGS[c].acc)}. Pre Slováka je ruština výrazne ľahšia vďaka príbuznosti jazykov. Pri 30 minútach denne to sú roky, preto je kľúčové učiť sa pravidelne a mať jazyk okolo seba aj mimo appky.</p>
+  </section>`;
+}
 
 /* ───────────── views ───────────── */
 function weekHTML(){
@@ -976,12 +1367,16 @@ function renderToday(view){
     'Slovo sa vráti tesne predtým, než by si ho zabudol. Rozostupy rastú: deň, tri dni, týždeň, mesiac.',
     'V nemčine sa uč podstatné mená vždy so členom. Farby pomáhajú: der modrý, die červený, das zelený.',
     'Počul si niečo zaujímavé? V Lekciách si pridaj vlastné slovíčko. To, čo potrebuješ ty, sa učí najlepšie.',
+    'Ľudia sa pri učení jazyka najviac chcú naučiť rozprávať. V Čítaní → Rozhovory si zahraj rolu a repliky hovor nahlas.',
+    'Nevieš, akú máš úroveň? V Lekciách ťukni na Úroveň a urob si dvojminútový test.',
+    'Na bežný rozhovor treba asi 2 000 až 3 000 najčastejších slov. Každá lekcia ťa k nim posúva.',
     'Lepšie hlasy: Nastavenia → Prístupnosť → Hovorený obsah → Hlasy. Stiahni si vylepšený hlas pre jazyk, ktorý sa učíš.'
   ];
   view.innerHTML = `${installHTML()}${backupHTML()}
     <section class="hello"><div class="hello-txt"><p class="eyebrow">${WD[now.getDay()]} ${now.getDate()}. ${MO[now.getMonth()]}</p><h1 class="h1 greet" lang="${c}">${esc(L.hello[hr < 11 ? 0 : hr < 18 ? 1 : 2])}</h1><p class="sub">${esc(L.name)}${userLevel(c) ? ' · ' + userLevel(c) : ''} · séria ${st} ${dni(st)}</p></div>
       <div class="ring-box">${ring(xp, S.goal)}<div class="ring-label"><b>${xp}</b><span>z ${S.goal} XP</span></div></div></section>
     ${userLevel(c) ? `<section class="plan"><p class="eyebrow">Dnešný plán</p><ol class="plan-steps">${steps}</ol>${cta}</section>` : `<section class="plan"><p class="eyebrow">Na začiatok</p>${levelPickerHTML(c)}</section>`}
+    ${userLevel(c) && !S.why && !S.whySkip ? `<section class="plan"><p class="eyebrow">Prečo sa učíš ${esc(L.adv)}?</p><p class="muted small">Označím ti lekcie, ktoré sa ti zídu najviac.</p><div class="chips-wrap">${GOALS.map(g => `<button class="tchip" data-act="set-why" data-arg="${g.id}">${esc(g.name)}</button>`).join('')}</div><button class="link" data-act="why-skip">Teraz nie</button></section>` : ''}
     ${weekHTML()}
     <aside class="tip"><p class="eyebrow">Ako sa tu učíš</p><p>${esc(tips[Math.floor(dayStart() / DAY) % tips.length])}</p></aside>`;
 }
@@ -989,16 +1384,17 @@ function levelPickerHTML(c){
   const cur = userLevel(c);
   return `<h2 class="h2">Akú máš úroveň ${esc(LANGS[c].in)}?</h2><p class="muted small">Podľa nej ti pripravím slovíčka, úlohy aj príbehy. Zmeniť ju môžeš kedykoľvek v Lekciách.</p>
     <div class="lvpick">${LEVELS.map(l => { const n = UNITS[c].filter(u => u.level === l.id).length;
-      return `<button class="lvbtn ${cur === l.id ? 'on' : ''}" data-act="set-level" data-arg="${l.id}"><b>${l.id}</b><span><strong>${esc(l.name)}</strong><small>${esc(l.d)}${n ? ` · ${n} ${n === 1 ? 'lekcia' : n < 5 ? 'lekcie' : 'lekcií'}` : ''}</small></span></button>`; }).join('')}</div>`;
+      return `<button class="lvbtn ${cur === l.id ? 'on' : ''}" data-act="set-level" data-arg="${l.id}"><b>${l.id}</b><span><strong>${esc(l.name)}</strong><small>${esc(l.d)}${n ? ` · ${n} ${n === 1 ? 'lekcia' : n < 5 ? 'lekcie' : 'lekcií'}` : ''}</small></span></button>`; }).join('')}
+      <button class="btn btn-wide" data-act="placement">${ic('test',18)} Neviem, otestuj ma (2 minúty)</button></div>`;
 }
 function levelSheet(c){ Sheet.show('Úroveň · ' + LANGS[c].name); Sheet.body(`<div class="intro">${levelPickerHTML(c)}<p class="muted small">Nižšie úrovne zostanú v Lekciách ako voliteľné. Tvoj doterajší pokrok sa nemení.</p></div>`); }
 function renderCourse(view){
   const c = S.active, L = LANGS[c], p = P[c].it, cur = currentUnit(c), mine = customItems(c);
   const unitBtn = (u, items) => {
     const learned = items.filter(x => p[x.id]).length, full = items.length && learned === items.length, pct = items.length ? learned / items.length * 100 : 0;
-    return `<button class="unit ${u.id === (cur && cur.id) && !full ? 'cur' : ''} ${full ? 'full' : ''}" data-act="unit" data-arg="${u.id}"><span class="unit-n">${full ? ic('check',20) : u.n || ic('plus',18)}</span><b>${esc(u.title)}</b><span class="cnt">${learned}/${items.length}</span><small>${esc(u.desc)}</small><span class="ubar"><i style="width:${pct.toFixed(0)}%"></i></span></button>`;
+    return `<button class="unit ${u.id === (cur && cur.id) && !full ? 'cur' : ''} ${full ? 'full' : ''}" data-act="unit" data-arg="${u.id}"><span class="unit-n">${full ? ic('check',20) : u.n || ic('plus',18)}</span><b>${esc(u.title)}</b><span class="cnt">${learned}/${items.length}</span><small>${esc(u.desc)}${gu.includes(u.id) ? ' <em class="goal-tag">pre tvoj cieľ</em>' : ''}</small><span class="ubar"><i style="width:${pct.toFixed(0)}%"></i></span></button>`;
   };
-  const ul = userLevel(c), U = lvn(ul);
+  const ul = userLevel(c), U = lvn(ul), gu = goalUnits(), gr = grammarOf(c);
   const groups = LEVELS.filter(l => UNITS[c].some(u => u.level === l.id)).map(l => {
     const us = UNITS[c].filter(u => u.level === l.id), below = ul && lvn(l.id) < U;
     return `<div class="lvgroup ${below ? 'below' : ''}"><h2 class="h2 lvh"><span class="lvtag">${l.id}</span>${esc(l.name)}${l.id === ul ? '<em class="lvme">Tvoja úroveň</em>' : below ? '<small class="muted">voliteľné</small>' : ''}</h2><div class="units">${us.map(u => unitBtn(u, u.items)).join('')}</div></div>`;
@@ -1006,6 +1402,7 @@ function renderCourse(view){
   view.innerHTML = `<section class="read-head"><p class="eyebrow">Lekcie · ${esc(L.name)}</p><h1 class="h1">Krok za krokom</h1>
     <div class="row-tools"><button class="btn sm" data-act="level-sheet">Úroveň: <b>${ul || 'nevybraná'}</b>${ul ? ' · ' + esc(lvName(ul)) : ''} · Zmeniť</button></div>
     <p class="muted">${!ul ? 'Vyber si úroveň a lekcie aj úlohy sa jej prispôsobia.' : U <= 2 ? 'So slovom sa najprv zoznámiš, potom ho spoznávaš medzi možnosťami, skladáš a nakoniec píšeš.' : U === 3 ? 'Na tvojej úrovni viac skladáš, dopĺňaš do viet a píšeš.' : 'Na tvojej úrovni hlavne píšeš, dopĺňaš a skladáš celé vety.'} Čo už vieš, preskočíš jedným ťuknutím.</p></section>
+    ${gr.length ? `<section class="sec"><h2 class="h2">Gramatika v krátkosti</h2><div class="gscroll">${gr.map(g => { const sc = (P[c].gram || {})[g.id]; return `<button class="gcard ${ul && lvn(g.level) > U + 1 ? 'dim' : ''}" data-act="grammar" data-arg="${esc(g.id)}"><span class="lvtag">${g.level}</span><b>${esc(g.title)}</b><small>${sc != null ? `${ic('check',12)} ${sc} %` : `${g.practice.length} úloh`}</small></button>`; }).join('')}</div></section>` : ''}
     ${groups}
     <div class="lvgroup"><h2 class="h2 lvh"><span class="lvtag">+</span>Tvoje slovíčka</h2><div class="units">${unitBtn({id:'mine', n:0, title:'Moje slovíčka', desc:mine.length ? 'Tvoje vlastné a z príbehov' : 'Pridaj si slová, ktoré potrebuješ ty'}, mine)}</div></div>`;
 }
@@ -1036,13 +1433,8 @@ function renderProgress(view){
       <div class="seg"><i style="width:${pc(s.m)}%"></i><i style="width:${pc(s.l)}%"></i></div>
       <div class="legend"><span>${s.m} zvládnutých</span><span>${s.l} v učení</span><span>${s.n} nových</span></div></button>`; }).join('')}</section>
   <button class="btn btn-wide" data-act="settings">${ic('gear',18)} Nastavenia, vzhľad, hlas a záloha</button>
-  <section class="sec"><h2 class="h2">Prečo to funguje</h2><ol class="method">
-    <li><b>Najprv spoznať, potom tvoriť</b><span>Nové slovo uvidíš a počuješ, potom ho vyberáš z možností, skladáš a až nakoniec píšeš. Každý krok je o kúsok ťažší.</span></li>
-    <li><b>Aktívne vybavovanie</b><span>Odpoveď si skúsiš vybaviť sám. Práve táto námaha ukladá slová do dlhodobej pamäti.</span></li>
-    <li><b>Rozložené opakovanie</b><span>Slovo sa vráti tesne predtým, než by si ho zabudol. Čím lepšie ho vieš, tým neskôr a ťažšou formou.</span></li>
-    <li><b>Slová v kontexte</b><span>Každé slovo má príkladovú vetu a v nemčine farbu rodu. Učíš sa celé spojenia, nie izolované tvary.</span></li>
-    <li><b>Malé denné dávky</b><span>Opakovanie, jedna lekcia a jedna hra. Asi 10 minút denne, aby to vydržalo dlho.</span></li>
-  </ol></section>
+  ${achHTML()}
+  ${guideHTML()}
   <p class="foot">Jazykový pas ${VERSION} · funguje offline · tvoje dáta neopúšťajú zariadenie</p>`;
 }
 
@@ -1145,6 +1537,8 @@ function settingsHTML(){
   </ol><p class="small muted">Hlasy Siri nemôže použiť žiadna appka v prehliadači, to je obmedzenie iPhonu. Na PC sú najkrajšie hlasy v prehliadači Edge (označené Natural).</p></details>
   </section>` : ''}
   <section class="sec"><h2 class="h2">Učenie</h2><div class="settings">
+    <div class="set"><label for="set-why">Prečo sa učíš<small>Lekcie pre tvoj cieľ sú označené</small></label><select id="set-why" data-set="why"><option value="" ${S.why ? '' : 'selected'}>Nevybrané</option>${GOALS.map(g => `<option value="${g.id}" ${S.why === g.id ? 'selected' : ''}>${esc(g.name)}</option>`).join('')}</select></div>
+    <div class="set col"><label>Denná pripomienka<small>Ťukni na čas. Otvorí sa Kalendár s opakovanou udalosťou, potvrď Pridať.</small></label><div class="btnrow">${REM_TIMES.map(t => `<a class="btn sm" href="reminders/${t.replace(':', '')}.ics" target="_blank" rel="noopener">${ic('bell',14)} ${t}</a>`).join('')}</div></div>
     <div class="set col"><label>Úroveň<small>Podľa nej sa vyberajú lekcie, úlohy a príbehy</small></label>${S.order.map(x => `<div class="field" style="align-items:center"><span class="small" style="width:96px;flex:none;font-weight:600">${esc(LANGS[x].name)}</span><select data-set="level" data-lang="${x}" style="flex:1;min-width:0;max-width:none" aria-label="Úroveň ${esc(LANGS[x].name)}"><option value="" ${userLevel(x) ? '' : 'selected'}>Nevybraná</option>${LEVELS.map(l => `<option value="${l.id}" ${userLevel(x) === l.id ? 'selected' : ''}>${l.id} · ${esc(l.name)}</option>`).join('')}</select></div>`).join('')}</div>
     <div class="set"><label for="set-goal">Denný cieľ<small>Jedna lekcia je asi 30 XP</small></label><select id="set-goal" data-set="goal">${[[20,'20 XP · ~5 min'],[30,'30 XP · ~8 min'],[50,'50 XP · ~12 min'],[80,'80 XP · ~20 min']].map(o => `<option value="${o[0]}" ${S.goal === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></div>
     <div class="set"><label for="set-per">Nové slovíčka v lekcii</label><select id="set-per" data-set="perLesson">${[3,5,8].map(n => `<option ${S.perLesson === n ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
@@ -1192,6 +1586,7 @@ function applySetting(k, el){
   else if (k === 'rate') S.rate = parseFloat(el.value);
   else if (k === 'translit') S.translit = el.checked;
   else if (k === 'langAccent') S.langAccent = el.checked;
+  else if (k === 'why') S.why = el.value || null;
   else if (k === 'level') { S.levels = S.levels || {}; if (el.value) S.levels[el.dataset.lang] = el.value; else delete S.levels[el.dataset.lang]; }
   else if (k === 'custom') { S.custom = Object.assign({}, CUSTOM_DEFAULT, S.custom || {}); S.custom[el.dataset.key] = el.value; }
   else if (k === 'voice') { S.voices = S.voices || {}; const x = el.dataset.lang; if (el.value) S.voices[x] = el.value; else delete S.voices[x]; save('settings'); Speech.say(SAMPLE[x], x); toast('Hlas zmenený.'); return; }
@@ -1214,6 +1609,7 @@ function renderHeader(){
 const TABS = [['today','Dnes','today'],['course','Lekcie','course'],['games','Hry','games'],['read','Čítanie','read'],['progress','Pokrok','progress']];
 function renderTabs(){ $('#tabs').innerHTML = `<div class="tabs-in wrap">${TABS.map(t => `<button class="tab ${tab === t[0] ? 'on' : ''}" data-act="tab" data-arg="${t[0]}" ${tab === t[0] ? 'aria-current="page"' : ''}>${ic(t[2],23)}<span>${t[1]}</span></button>`).join('')}</div>`; }
 function render(){
+  checkAch();
   applyTheme(S.active); renderHeader(); renderTabs();
   ({today:renderToday, course:renderCourse, games:renderGames, read:renderRead, progress:renderProgress}[tab] || renderToday)($('#view'));
 }
@@ -1238,6 +1634,12 @@ const ACT = {
     P[c].custom.push({id:uid(), t:g.w, sk:g.sk, ex:sentenceWith(s.paragraphs.join(' '), g.w), exSk:''}); save(c);
     closePop(); render(); toast('Pridané do Mojich slovíčok. Naučíš sa ho v ďalšej lekcii.');
   },
+  'read-mode'(a){ ls('readMode', a === 'dialogs' ? 'dialogs' : 'stories'); render(); },
+  dialog(a){ dialogSheet(S.active, a); },
+  placement(){ placementTest(S.active); },
+  grammar(a){ grammarSheet(S.active, a); },
+  'set-why'(a){ S.why = a; save('settings'); render(); if (Sheet.open && Sheet.ctrl && Sheet.ctrl.isSettings) Sheet.ctrl.paint(true); toast('Lekcie pre tvoj cieľ sú v Lekciách označené.'); },
+  'why-skip'(){ S.whySkip = true; save('settings'); render(); },
   'story-pick'(a){ const m = ls('read') || {}; m[S.active] = a; ls('read', m); render(); window.scrollTo(0, 0); },
   'say-para'(a){ const s = curStory(S.active); if (s) Speech.say(s.paragraphs[+a], S.active); },
   'read-all'(){ const s = curStory(S.active); if (s) Speech.say(s.title + '. ' + s.paragraphs.join(' '), S.active); },

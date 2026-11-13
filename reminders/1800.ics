@@ -1,0 +1,21 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Jazykovy pas//SK
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:jazykovy-pas-reminder-1800@tomastakac.github.io
+DTSTAMP:20261113T120000Z
+DTSTART:20261101T180000
+DURATION:PT10M
+RRULE:FREQ=DAILY
+SUMMARY:Jazykový pas: 10 minút jazykov
+DESCRIPTION:Otvor Jazykový pas a sprav dnešný plán: opakovanie\, lekcia a hra.
+URL:https://tomastakac.github.io/jazykovy-pas/
+BEGIN:VALARM
+TRIGGER:PT0M
+ACTION:DISPLAY
+DESCRIPTION:Čas na jazyky!
+END:VALARM
+END:VEVENT
+END:VCALENDAR
