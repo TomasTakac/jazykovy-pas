@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 
-const VERSION = '2.1';
+const VERSION = '2.2';
 const CONTENT = window.CONTENT || {};
 
 /* ───────────── helpers ───────────── */
@@ -57,15 +57,28 @@ function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add
 
 /* ───────────── languages ───────────── */
 const LANGS = {
-  de:{name:'Nemčina', adv:'po nemecky', self:'Deutsch', loc:'de-DE', c:['#D08A00','#F2B33D','#865700','#FBEFD5','#3A2D12','#1E1503','#1E1503'], hello:['Guten Morgen!','Guten Tag!','Guten Abend!'], bravo:'Super gemacht!'},
-  fr:{name:'Francúzština', adv:'po francúzsky', self:'Français', loc:'fr-FR', c:['#2F5BEA','#8AA5FF','#2448C4','#E4EAFF','#1C2648','#FFFFFF','#0D1633'], hello:['Bonjour !','Bonjour !','Bonsoir !'], bravo:'Bravo !'},
-  es:{name:'Španielčina', adv:'po španielsky', self:'Español', loc:'es-ES', c:['#D9412F','#FF8777','#B3321F','#FCE4E0','#3F1C17','#FFFFFF','#2A0B07'], hello:['¡Buenos días!','¡Buenas tardes!','¡Buenas noches!'], bravo:'¡Muy bien!'},
-  pt:{name:'Portugalčina', adv:'po portugalsky', self:'Português (BR)', loc:'pt-BR', c:['#0F8A62','#48D3A2','#0A6E4E','#DBF3EA','#123629','#FFFFFF','#06281C'], hello:['Bom dia!','Boa tarde!','Boa noite!'], bravo:'Muito bem!'},
-  ru:{name:'Ruština', adv:'po rusky', self:'Русский', loc:'ru-RU', c:['#6F45DB','#B096FF','#5A32C2','#ECE5FD','#2A2049','#FFFFFF','#1A0F3A'], hello:['Доброе утро!','Добрый день!','Добрый вечер!'], bravo:'Отлично!'}
+  de:{name:'Nemčina', in:'v nemčine', adv:'po nemecky', self:'Deutsch', loc:'de-DE', c:['#D08A00','#F2B33D','#865700','#FBEFD5','#3A2D12','#1E1503','#1E1503'], hello:['Guten Morgen!','Guten Tag!','Guten Abend!'], bravo:'Super gemacht!'},
+  fr:{name:'Francúzština', in:'vo francúzštine', adv:'po francúzsky', self:'Français', loc:'fr-FR', c:['#2F5BEA','#8AA5FF','#2448C4','#E4EAFF','#1C2648','#FFFFFF','#0D1633'], hello:['Bonjour !','Bonjour !','Bonsoir !'], bravo:'Bravo !'},
+  es:{name:'Španielčina', in:'v španielčine', adv:'po španielsky', self:'Español', loc:'es-ES', c:['#D9412F','#FF8777','#B3321F','#FCE4E0','#3F1C17','#FFFFFF','#2A0B07'], hello:['¡Buenos días!','¡Buenas tardes!','¡Buenas noches!'], bravo:'¡Muy bien!'},
+  pt:{name:'Portugalčina', in:'v portugalčine', adv:'po portugalsky', self:'Português (BR)', loc:'pt-BR', c:['#0F8A62','#48D3A2','#0A6E4E','#DBF3EA','#123629','#FFFFFF','#06281C'], hello:['Bom dia!','Boa tarde!','Boa noite!'], bravo:'Muito bem!'},
+  ru:{name:'Ruština', in:'v ruštine', adv:'po rusky', self:'Русский', loc:'ru-RU', c:['#6F45DB','#B096FF','#5A32C2','#ECE5FD','#2A2049','#FFFFFF','#1A0F3A'], hello:['Доброе утро!','Добрый день!','Добрый вечер!'], bravo:'Отлично!'}
 };
 const SAMPLE = {de:'Hallo! Schön, dich kennenzulernen. Wie geht es dir?', fr:'Bonjour ! Ravie de te rencontrer. Comment ça va ?', es:'¡Hola! Encantada de conocerte. ¿Qué tal?', pt:'Olá! Prazer em te conhecer. Tudo bem?', ru:'Привет! Рада познакомиться. Как дела?'};
 const CHARS = {de:['ä','ö','ü','ß'], fr:['é','è','ê','à','ç','ù','œ'], es:['á','é','í','ó','ú','ñ','¿','¡'], pt:['á','â','ã','à','ç','é','ê','ó','õ'], ru:[]};
 const G_LABEL = {m:'der · mužský rod', f:'die · ženský rod', n:'das · stredný rod', p:'die · množné číslo'};
+
+/* ───────────── levels ───────────── */
+const LEVELS = [
+  {id:'A1', name:'Začiatočník', d:'Nevieš skoro nič alebo len pár slov.'},
+  {id:'A2', name:'Základy', d:'Zvládneš pozdrav, nákup a jednoduché vety.'},
+  {id:'B1', name:'Mierne pokročilý', d:'Dohovoríš sa na cestách, rozumieš bežným témam.'},
+  {id:'B2', name:'Pokročilý', d:'Diskutuješ o názoroch, rozumieš článkom a filmom.'},
+  {id:'C1', name:'Veľmi pokročilý', d:'Hovoríš plynulo aj o zložitých veciach, poznáš idiómy.'},
+  {id:'C2', name:'Majster', d:'Ladíš jemné nuansy a hovorový jazyk.'}
+];
+const LV = {A1:1, A2:2, B1:3, B2:4, C1:5, C2:6};
+const lvn = id => LV[id] || 1;
+const lvName = id => (LEVELS.find(l => l.id === id) || {}).name || '';
 
 /* ───────────── content ───────────── */
 const UNITS = {}, SENT = {}, BYID = {};
@@ -83,13 +96,14 @@ for (const c in LANGS) {
       const it = mkItem(c, {id, u:u.id, t:p[0], sk:p[1]||'', ex:p[2]||'', exSk:p[3]||'', note:p[4]||''});
       BYID[id] = it; return it;
     });
-    return {id:u.id, n:ui+1, title:u.title, desc:u.desc||'', items};
-  });
-  SENT[c] = (L.sentences || []).map((r,i) => ({id:c+'-s'+i, t:r[0], sk:r[1], note:r[2]||''}));
+    return {id:u.id, n:ui+1, i:ui, level:u.level || 'A1', title:u.title, desc:u.desc||'', items};
+  }).sort((a, b) => lvn(a.level) - lvn(b.level) || a.i - b.i);
+  UNITS[c].forEach((u, i) => { u.n = i + 1; });
+  SENT[c] = (L.sentences || []).map((r,i) => ({id:c+'-s'+i, t:r[0], sk:r[1], note:r[2]||'', level:r[3]||'A2'}));
 }
 
 /* ───────────── state & storage ───────────── */
-const DEFAULT = () => ({v:2, updatedAt:0, active:'de', order:['de','fr','es','pt','ru'], goal:30, perLesson:5, rate:0.9, translit:true, voices:{}, theme:'auto', langAccent:false, custom:null, days:{}, installHidden:false, lastBackup:0, backupSnooze:0});
+const DEFAULT = () => ({v:2, updatedAt:0, active:'de', order:['de','fr','es','pt','ru'], goal:30, perLesson:5, rate:0.9, translit:true, voices:{}, levels:{}, theme:'auto', langAccent:false, custom:null, days:{}, installHidden:false, lastBackup:0, backupSnooze:0});
 const emptyP = () => ({updatedAt:0, it:{}, custom:[], best:{}, st:{}, log:{d:'', l:0, r:0, g:0}});
 let S = DEFAULT();
 const P = {};
@@ -114,10 +128,13 @@ function unitOf(it){ if (it.u === 'mine') return {id:'mine', n:0, title:'Moje sl
 function dueItems(c){ const p = P[c].it, end = endToday(); return allItems(c).filter(x => p[x.id] && p[x.id].due < end).sort((a,b) => p[a.id].due - p[b.id].due); }
 function nextNewItems(c, n, unitId){
   const p = P[c].it;
-  const pool = unitId ? unitItems(c, unitId) : customItems(c).concat(UNITS[c].flatMap(u => u.items));
+  let pool;
+  if (unitId) pool = unitItems(c, unitId);
+  else { const L = lvn(userLevel(c)); pool = customItems(c).concat(UNITS[c].filter(u => lvn(u.level) >= L).flatMap(u => u.items), UNITS[c].filter(u => lvn(u.level) < L).flatMap(u => u.items)); }
   const out = []; for (const x of pool) { if (!p[x.id]) out.push(x); if (out.length >= n) break; } return out;
 }
-function currentUnit(c){ const p = P[c].it; return UNITS[c].find(u => u.items.some(x => !p[x.id])) || UNITS[c][UNITS[c].length-1]; }
+const userLevel = c => (S.levels || {})[c] || null;
+function currentUnit(c){ const p = P[c].it, L = lvn(userLevel(c)); return UNITS[c].find(u => lvn(u.level) >= L && u.items.some(x => !p[x.id])) || UNITS[c].find(u => u.items.some(x => !p[x.id])) || UNITS[c][UNITS[c].length-1]; }
 function itemStats(c){ const p = P[c].it; let m = 0, l = 0, n = 0; for (const x of allItems(c)) { const s = p[x.id]; if (!s) n++; else if (s.ivl >= 21) m++; else l++; } return {m, l, n, t:m+l+n}; }
 function logDay(c, k){ const g = P[c].log && P[c].log.d === dayKey() ? P[c].log : {d:dayKey(), l:0, r:0, g:0}; g[k] = (g[k]||0) + 1; P[c].log = g; save(c); }
 const todayLog = c => (P[c].log && P[c].log.d === dayKey()) ? P[c].log : {l:0, r:0, g:0};
@@ -154,7 +171,7 @@ function importText(txt){
     save(c);
   }
   for (const k in (rs.days || {})) S.days[k] = Math.max(S.days[k]||0, rs.days[k]||0);
-  if ((rs.updatedAt||0) > (S.updatedAt||0)) ['goal','perLesson','rate','translit','order','active','voices','theme','langAccent','custom'].forEach(k => { if (rs[k] !== undefined) S[k] = rs[k]; });
+  if ((rs.updatedAt||0) > (S.updatedAt||0)) ['goal','perLesson','rate','translit','order','active','voices','levels','theme','langAccent','custom'].forEach(k => { if (rs[k] !== undefined) S[k] = rs[k]; });
   S.order = S.order.filter(c => LANGS[c]); if (!S.order.length) S.order = ['de']; if (!S.order.includes(S.active)) S.active = S.order[0];
   save('settings'); flush(); render(); toast('Záloha načítaná a spojená s týmto zariadením.');
   return true;
@@ -192,15 +209,42 @@ const Speech = {
     const score = v => (this.female(v) ? 6 : 0) + this.quality(v) * 2 + (this.lang(v) === loc ? 1 : 0) - (this.ROBOT.test(v.name) ? 20 : 0);
     return vs.slice().sort((a, b) => score(b) - score(a))[0];
   },
-  say(text, c, slow){
-    if (!this.synth) return;
-    try {
-      if (this.synth.speaking || this.synth.pending) this.synth.cancel();
-      const u = new SpeechSynthesisUtterance(plain(text)); u.lang = LANGS[c].loc;
-      const v = this.pick(c); if (v) u.voice = v;
-      u.rate = Math.max(0.5, Math.min(1.3, (slow ? 0.7 : 1) * (S.rate || 1)));
-      this.synth.speak(u);
-    } catch(e) {}
+  /* iOS: speech is silenced by the Ring/Silent switch and in home-screen apps it must be unlocked by a tap.
+     audioSession 'playback' (Safari 16.4+) and a silent clip move the page to the media audio category. */
+  unlocked:false, started:0, warned:false, lastOk:null,
+  silentUrl(){
+    if (this._silent) return this._silent;
+    const n = 1600, buf = new ArrayBuffer(44 + n), v = new DataView(buf), w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    w(0,'RIFF'); v.setUint32(4, 36 + n, true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+    v.setUint32(24,8000,true); v.setUint32(28,8000,true); v.setUint16(32,1,true); v.setUint16(34,8,true); w(36,'data'); v.setUint32(40,n,true);
+    for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+    try { this._silent = URL.createObjectURL(new Blob([buf], {type:'audio/wav'})); } catch(e) { this._silent = ''; }
+    return this._silent;
+  },
+  playback(){ try { if (navigator.audioSession && navigator.audioSession.type !== 'playback') navigator.audioSession.type = 'playback'; } catch(e) {} },
+  unlock(){
+    if (this.unlocked || !this.synth) return; this.unlocked = true; this.playback();
+    try { const a = new Audio(this.silentUrl()); a.setAttribute('playsinline', ''); a.volume = 1; const pr = a.play(); if (pr && pr.catch) pr.catch(() => {}); } catch(e) {}
+    try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; this.synth.speak(u); } catch(e) {}
+  },
+  say(text, c, slow, onResult){
+    if (!this.synth) { if (onResult) onResult(false, 'nosynth'); return; }
+    this.playback(); if (!this.unlocked) this.unlock();
+    const go = () => {
+      try {
+        if (this.synth.paused) this.synth.resume();
+        const u = new SpeechSynthesisUtterance(plain(text)); u.lang = LANGS[c].loc;
+        const v = this.pick(c); if (v) u.voice = v;
+        u.rate = Math.max(0.5, Math.min(1.3, (slow ? 0.7 : 1) * (S.rate || 1))); u.volume = 1;
+        let done = false;
+        const finish = (ok, why) => { if (done) return; done = true; clearTimeout(t); this.lastOk = ok; if (onResult) onResult(ok, why); else if (!ok && !this.warned) { this.warned = true; toast('Hlas sa nespustil. Skontroluj tichý režim a hlasitosť (Nastavenia → Vyskúšať zvuk).'); } };
+        u.onstart = () => finish(true);
+        u.onerror = e => { if (e && (e.error === 'interrupted' || e.error === 'canceled')) { done = true; clearTimeout(t); return; } finish(false, e && e.error); };
+        const t = setTimeout(() => finish(false, 'timeout'), 3000);
+        this.synth.speak(u);
+      } catch(e) { if (onResult) onResult(false, 'error'); }
+    };
+    if (this.synth.speaking || this.synth.pending) { try { this.synth.cancel(); } catch(e) {} setTimeout(go, 60); } else go();
   },
   stop(){ try { if (this.synth) this.synth.cancel(); } catch(e) {} }
 };
@@ -247,12 +291,17 @@ function schedule(prev, g){
   s.ivl = Math.min(ivl, 365); s.reps++; s.due = addDays(dayStart(), s.ivl);
   return s;
 }
+const sentenceOK = it => !!(it.ex && it.exSk && wcount(it.ex) >= 3 && wcount(it.ex) <= 12);
 function reviewType(it, s, c){
-  const ivl = s ? s.ivl : 0, audio = Speech.can(c);
+  const L = lvn(userLevel(c)), bonus = L >= 5 ? 10 : L >= 4 ? 4 : L >= 3 ? 2 : 0;
+  const ivl = (s ? s.ivl : 0) + bonus, audio = Speech.can(c);
   if (ivl <= 1) return audio && Math.random() < 0.4 ? 'listen' : 'mc_s2t';
   if (ivl <= 3) return 'build';
-  if (ivl <= 10) return 'type';
-  return findInEx(it) && Math.random() < 0.6 ? 'cloze' : 'type';
+  if (ivl <= 10) return L >= 3 && sentenceOK(it) && Math.random() < 0.3 ? 'sentence' : 'type';
+  const r = Math.random();
+  if (findInEx(it) && r < 0.45) return 'cloze';
+  if (L >= 3 && sentenceOK(it) && r < 0.75) return 'sentence';
+  return 'type';
 }
 
 /* ───────────── XP & streak ───────────── */
@@ -325,16 +374,20 @@ function gradeType(v, it){
   const core = coreOf(it); if (core && norm(core) !== norm(it.t) && check(v, core, it.c) !== 'bad') return {r:'near', msg:'Skoro. Celé je to: ' + it.t};
   return {r:'bad'};
 }
+/* Exercise mix by level: beginners recognise first, advanced learners produce more (typing, cloze, whole sentences). */
 function lessonSteps(items, c){
-  const steps = [], audio = Speech.can(c);
+  const steps = [], audio = Speech.can(c), L = lvn(userLevel(c));
+  const clozeOr = (it, alt) => findInEx(it) ? 'cloze' : alt;
+  const sentOr = (it, alt) => sentenceOK(it) ? 'sentence' : alt;
   for (let b = 0; b < items.length; b += 3) {
     const batch = items.slice(b, b + 3);
     batch.forEach((it, i) => steps.push({type:'intro', it, k:b+i+1, n:items.length}));
-    shuffle(batch).forEach(it => steps.push({type:audio && Math.random() < 0.35 ? 'listen' : 'mc_t2s', it}));
-    shuffle(batch).forEach(it => steps.push({type:'mc_s2t', it}));
+    if (L <= 2) shuffle(batch).forEach(it => steps.push({type:audio && Math.random() < 0.35 ? 'listen' : 'mc_t2s', it}));
+    if (L <= 4) shuffle(batch).forEach(it => steps.push({type:'mc_s2t', it}));
   }
-  shuffle(items).forEach(it => steps.push({type:'build', it}));
-  shuffle(items).forEach(it => steps.push({type:'type', it}));
+  if (L <= 2) { shuffle(items).forEach(it => steps.push({type:'build', it})); shuffle(items).forEach(it => steps.push({type:'type', it})); }
+  else if (L === 3) { shuffle(items).forEach(it => steps.push({type:'build', it})); shuffle(items).forEach(it => steps.push({type:clozeOr(it, 'type'), it})); shuffle(items).forEach(it => steps.push({type:sentOr(it, 'type'), it})); }
+  else { shuffle(items).forEach(it => steps.push({type:'type', it})); shuffle(items).forEach(it => steps.push({type:clozeOr(it, sentOr(it, 'type')), it})); shuffle(items).forEach(it => steps.push({type:sentOr(it, 'type'), it})); }
   return steps;
 }
 function sayBtns(c, arg){ if (!Speech.can(c)) return ''; arg = arg || 't';
@@ -370,7 +423,7 @@ const R = {
     const line = cur.placed.map((ti, pos) => `<button class="wtile ${L ? 'l' : ''}" lang="${c}" data-act="ctl" data-fn="unplace" data-arg="${pos}" ${cur.answered ? 'disabled' : ''}>${esc(cur.tiles[ti])}</button>`).join('')
       || `<span class="muted ord-ph">${L ? 'Ťukaj na písmená v správnom poradí' : 'Ťukaj na slová v správnom poradí'}</span>`;
     const bank = cur.bank.map((ti, pos) => `<button class="wtile ${L ? 'l' : ''}" lang="${c}" data-act="ctl" data-fn="place" data-arg="${pos}">${esc(cur.tiles[ti])}</button>`).join('');
-    return `<div class="ex-q"><p class="eyebrow">Poskladaj ${esc(LANGS[c].adv)}</p><p class="ex-sk">${esc(s.it.sk)}</p></div>
+    return `<div class="ex-q"><p class="eyebrow">${s.type === 'sentence' ? 'Poskladaj celú vetu' : 'Poskladaj ' + esc(LANGS[c].adv)}</p><p class="ex-sk">${esc(s.type === 'sentence' ? s.it.exSk : s.it.sk)}</p>${s.type === 'sentence' ? `<p class="muted small">Použi: <b lang="${c}">${esc(s.it.t)}</b></p>` : ''}</div>
       <div class="ord-line ${L ? 'letters' : ''} ${cur.answered ? (cur.res === 'bad' ? 'bad' : 'ok') : ''}">${line}</div>
       ${cur.answered ? '' : `<div class="ord-bank ${L ? 'letters' : ''}">${bank}</div>`}
       <div id="fbslot" class="sheet-actions">${cur.answered ? '' : `<button class="btn btn-primary btn-wide" data-act="ctl" data-fn="checkBuild" ${cur.placed.length < cur.need ? 'disabled' : ''}>Skontrolovať</button>`}</div>`;
@@ -387,11 +440,11 @@ const R = {
       <div id="fbslot" class="sheet-actions"><div class="btnrow" style="justify-content:space-between"><button class="link" data-act="ctl" data-fn="hint">Nápoveda: ďalšie písmeno</button><button class="link" data-act="ctl" data-fn="giveup">Neviem</button></div><button class="btn btn-primary btn-wide" data-act="ctl" data-fn="checkType">Skontrolovať</button></div>`;
   }
 };
-const RENDER = {intro:R.intro, mc_t2s:R.mc, mc_s2t:R.mc, listen:R.mc, build:R.build, type:R.type, cloze:R.type};
-function fbHTML(res, it, c, msg){
-  const head = res === 'ok' ? pickOne(PRAISE) : res === 'near' ? 'Skoro!' : 'Nie celkom.';
-  return `<div class="fb ${res}" id="fbslot"><p class="fb-h">${head}</p><p class="fb-a"><b lang="${c}">${fmtT(it)}</b> = ${esc(it.sk)}</p>${trLine(c, it.t)}${msg ? `<p class="small">${esc(msg)}</p>` : ''}
-    <div class="fb-row">${Speech.can(c) ? `<button class="speak" data-act="ctl" data-fn="say" data-arg="t" aria-label="Prehrať">${ic('speaker',18)}</button>` : ''}<button class="btn btn-primary" data-act="ctl" data-fn="next">Pokračovať</button></div></div>`;
+const RENDER = {intro:R.intro, mc_t2s:R.mc, mc_s2t:R.mc, listen:R.mc, build:R.build, sentence:R.build, type:R.type, cloze:R.type};
+function fbHTML(res, it, c, msg, type){
+  const head = res === 'ok' ? pickOne(PRAISE) : res === 'near' ? 'Skoro!' : 'Nie celkom.', sent = type === 'sentence';
+  return `<div class="fb ${res}" id="fbslot"><p class="fb-h">${head}</p>${sent ? `<p class="fb-a"><b lang="${c}">${esc(it.ex)}</b></p><p class="small">${esc(it.exSk)}</p>${trLine(c, it.ex)}` : `<p class="fb-a"><b lang="${c}">${fmtT(it)}</b> = ${esc(it.sk)}</p>${trLine(c, it.t)}`}${msg ? `<p class="small">${esc(msg)}</p>` : ''}
+    <div class="fb-row">${Speech.can(c) ? `<button class="speak" data-act="ctl" data-fn="say" data-arg="${sent ? 'ex' : 't'}" aria-label="Prehrať">${ic('speaker',18)}</button>` : ''}<button class="btn btn-primary" data-act="ctl" data-fn="next">Pokračovať</button></div></div>`;
 }
 
 function session(o){
@@ -405,11 +458,12 @@ function session(o){
       const s = st.steps[st.i];
       if (s.type === 'cloze' && !findInEx(s.it)) s.type = 'type';
       if (s.type === 'listen' && !Speech.can(c)) s.type = 'mc_t2s';
+      if (s.type === 'sentence' && !sentenceOK(s.it)) s.type = 'type';
       const cur = st.cur = {answered:false, hint:0, picked:-1, res:null};
       if (s.type === 'mc_t2s' || s.type === 'listen') cur.opts = shuffle([s.it].concat(distract(s.it, 3, 'sk')));
       if (s.type === 'mc_s2t') cur.opts = shuffle([s.it].concat(distract(s.it, 3, 't')));
-      if (s.type === 'build') {
-        const sp = cur.spec = buildSpec(s.it); cur.tiles = sp.target.concat(sp.extra); cur.need = sp.target.length; cur.placed = [];
+      if (s.type === 'build' || s.type === 'sentence') {
+        const sp = cur.spec = s.type === 'sentence' ? {mode:'w', target:s.it.ex.trim().split(/\s+/), answer:s.it.ex, extra:[]} : buildSpec(s.it); cur.tiles = sp.target.concat(sp.extra); cur.need = sp.target.length; cur.placed = [];
         let b = shuffle(cur.tiles.map((x, i) => i)); if (b.length > 1 && b.every((v, i) => v === i)) b.reverse(); cur.bank = b;
       }
       Sheet.progress(st.i / st.steps.length);
@@ -465,8 +519,8 @@ function session(o){
     },
     feedback(res, msg){
       const s = st.steps[st.i], slot = $('#fbslot');
-      if (slot) slot.outerHTML = fbHTML(res, s.it, c, msg);
-      if (!(s.type === 'mc_t2s' || s.type === 'listen')) Speech.say(s.it.t, c);
+      if (slot) slot.outerHTML = fbHTML(res, s.it, c, msg, s.type);
+      if (!(s.type === 'mc_t2s' || s.type === 'listen')) Speech.say(s.type === 'sentence' ? s.it.ex : s.it.t, c);
       ctrl.record(res);
       requestAnimationFrame(() => { const sh = $('#sheet'); sh.scrollTo({top:sh.scrollHeight, behavior:'smooth'}); });
     },
@@ -492,7 +546,7 @@ function session(o){
       if (s.type === 'intro' || st.cur.answered) { if (e.key === 'Enter' || (!inInput && e.key === ' ')) { e.preventDefault(); ctrl.next(); } return; }
       if ((s.type === 'mc_t2s' || s.type === 'mc_s2t' || s.type === 'listen') && e.key.length === 1 && '1234'.includes(e.key)) { ctrl.pick(+e.key - 1); return; }
       if ((s.type === 'type' || s.type === 'cloze') && e.key === 'Enter') { e.preventDefault(); ctrl.checkType(); return; }
-      if (s.type === 'build') {
+      if (s.type === 'build' || s.type === 'sentence') {
         if (e.key === 'Enter') { e.preventDefault(); ctrl.checkBuild(); }
         else if (e.key === 'Backspace' && st.cur.placed.length) { e.preventDefault(); ctrl.unplace(st.cur.placed.length - 1); }
       }
@@ -552,14 +606,15 @@ const parsePairs = s => String(s||'').split('|').filter(Boolean).map(x => { cons
 function genderWords(c){ const G = (CONTENT[c]||{}).gender; if (!G) return []; const out = []; for (const a of G.arts) for (const p of parsePairs(G.words[a])) out.push({a, w:p.t, sk:p.sk}); return out; }
 function learnedItems(c){ const p = P[c].it; return allItems(c).filter(x => p[x.id]); }
 function examplePool(c){ return learnedItems(c).filter(x => x.ex && x.exSk).map(x => ({t:x.ex, sk:x.exSk})); }
-function orderPool(c){ return shuffle(examplePool(c)).concat(shuffle(SENT[c].map(k => ({t:plain(k.t), sk:k.sk})))).filter(k => { const n = wcount(k.t); return n >= 3 && n <= 9; }); }
-function dictPool(c){ return shuffle(examplePool(c)).concat(shuffle(SENT[c].map(k => ({t:plain(k.t), sk:k.sk})))).filter(k => wcount(k.t) <= 9); }
+function sentPool(c){ const L = lvn(userLevel(c) || 'A2'), near = SENT[c].filter(x => Math.abs(lvn(x.level) - L) <= 1); return near.length >= 6 ? near : SENT[c].slice().sort((a, b) => Math.abs(lvn(a.level) - L) - Math.abs(lvn(b.level) - L)).slice(0, 12); }
+function orderPool(c){ return shuffle(examplePool(c)).concat(shuffle(sentPool(c).map(k => ({t:plain(k.t), sk:k.sk})))).filter(k => { const n = wcount(k.t); return n >= 3 && n <= 9; }); }
+function dictPool(c){ return shuffle(examplePool(c)).concat(shuffle(sentPool(c).map(k => ({t:plain(k.t), sk:k.sk})))).filter(k => wcount(k.t) <= 9); }
 function pairPool(c){ const learned = shuffle(learnedItems(c).filter(x => wcount(x.t) <= 3)); const first = UNITS[c].slice(0, 3).flatMap(u => u.items).filter(x => wcount(x.t) <= 3 && !learned.includes(x)); return learned.concat(first); }
 function gameList(c){
   const G = (CONTENT[c]||{}).gender;
   return [
     {id:'gender', icon:ic('dots'), t:G ? G.title : 'Rod podstatných mien', d:'60 sekúnd, čo najviac správnych členov', ok:!!G},
-    {id:'fill', icon:ic('fill'), t:'Doplň vetu', d:'Vyber slovo, ktoré do vety patrí', ok:SENT[c].length >= 4},
+    {id:'fill', icon:ic('fill'), t:'Doplň vetu', d:'Vyber slovo, ktoré do vety patrí', ok:sentPool(c).length >= 4},
     {id:'order', icon:ic('order'), t:'Poskladaj vetu', d:'Slovosled ťukaním na slová', ok:orderPool(c).length >= 3},
     {id:'dict', icon:ic('dict'), t:'Diktát', d:'Vypočuj si vetu a napíš ju', ok:Speech.can(c) && dictPool(c).length >= 3},
     {id:'pairs', icon:ic('pairs'), t:'Páry', d:'Spoj slovo s prekladom na čas', ok:pairPool(c).length >= 5}
@@ -618,7 +673,7 @@ function genderGame(c){
 }
 
 function fillGame(c){
-  const pool = shuffle(SENT[c]).slice(0, 8), answers = [...new Set(SENT[c].map(k => splitCloze(k.t)[1]))];
+  const pool = shuffle(sentPool(c)).slice(0, 8), answers = [...new Set(SENT[c].map(k => splitCloze(k.t)[1]))];
   const st = {r:0, ok:0, xp:0, answered:false, picked:-1, opts:[], right:false};
   Sheet.show('Doplň vetu');
   const ctrl = {
@@ -838,13 +893,13 @@ function glossify(text, gloss, used, c){
   return out + esc(text.slice(p));
 }
 function sentenceWith(text, w){ const parts = String(text).split(/(?<=[.!?…»])\s+/); const lw = w.toLocaleLowerCase(); return parts.find(p => p.toLocaleLowerCase().includes(lw)) || ''; }
-const LV = {A1:1, A2:2, B1:3, B2:4, C1:5};
 function storiesOf(c){ const L = CONTENT[c] || {}; return [L.story].concat(L.stories || []).filter(Boolean).map((s, i) => Object.assign({level:'A2', idx:i}, s)).sort((a, b) => (LV[a.level]||2) - (LV[b.level]||2) || a.idx - b.idx); }
 const stState = (c, s) => P[c].st[s.title] || (P[c].st[s.title] = {answers:{}, done:false});
 function curStory(c){
   const all = storiesOf(c); if (!all.length) return null;
   const want = (ls('read') || {})[c];
-  return all.find(s => s.title === want) || all.find(s => !(P[c].st[s.title] || {}).done) || all[0];
+  const L = lvn(userLevel(c) || 'A2'), unread = all.filter(s => !(P[c].st[s.title] || {}).done).sort((a, b) => Math.abs(lvn(a.level) - L) - Math.abs(lvn(b.level) - L));
+  return all.find(s => s.title === want) || unread[0] || all[0];
 }
 function renderRead(view){
   const c = S.active, L = LANGS[c], all = storiesOf(c), s = curStory(c), used = new Set();
@@ -924,22 +979,35 @@ function renderToday(view){
     'Lepšie hlasy: Nastavenia → Prístupnosť → Hovorený obsah → Hlasy. Stiahni si vylepšený hlas pre jazyk, ktorý sa učíš.'
   ];
   view.innerHTML = `${installHTML()}${backupHTML()}
-    <section class="hello"><div class="hello-txt"><p class="eyebrow">${WD[now.getDay()]} ${now.getDate()}. ${MO[now.getMonth()]}</p><h1 class="h1 greet" lang="${c}">${esc(L.hello[hr < 11 ? 0 : hr < 18 ? 1 : 2])}</h1><p class="sub">${esc(L.name)} · séria ${st} ${dni(st)}</p></div>
+    <section class="hello"><div class="hello-txt"><p class="eyebrow">${WD[now.getDay()]} ${now.getDate()}. ${MO[now.getMonth()]}</p><h1 class="h1 greet" lang="${c}">${esc(L.hello[hr < 11 ? 0 : hr < 18 ? 1 : 2])}</h1><p class="sub">${esc(L.name)}${userLevel(c) ? ' · ' + userLevel(c) : ''} · séria ${st} ${dni(st)}</p></div>
       <div class="ring-box">${ring(xp, S.goal)}<div class="ring-label"><b>${xp}</b><span>z ${S.goal} XP</span></div></div></section>
-    <section class="plan"><p class="eyebrow">Dnešný plán</p><ol class="plan-steps">${steps}</ol>${cta}</section>
+    ${userLevel(c) ? `<section class="plan"><p class="eyebrow">Dnešný plán</p><ol class="plan-steps">${steps}</ol>${cta}</section>` : `<section class="plan"><p class="eyebrow">Na začiatok</p>${levelPickerHTML(c)}</section>`}
     ${weekHTML()}
     <aside class="tip"><p class="eyebrow">Ako sa tu učíš</p><p>${esc(tips[Math.floor(dayStart() / DAY) % tips.length])}</p></aside>`;
 }
+function levelPickerHTML(c){
+  const cur = userLevel(c);
+  return `<h2 class="h2">Akú máš úroveň ${esc(LANGS[c].in)}?</h2><p class="muted small">Podľa nej ti pripravím slovíčka, úlohy aj príbehy. Zmeniť ju môžeš kedykoľvek v Lekciách.</p>
+    <div class="lvpick">${LEVELS.map(l => { const n = UNITS[c].filter(u => u.level === l.id).length;
+      return `<button class="lvbtn ${cur === l.id ? 'on' : ''}" data-act="set-level" data-arg="${l.id}"><b>${l.id}</b><span><strong>${esc(l.name)}</strong><small>${esc(l.d)}${n ? ` · ${n} ${n === 1 ? 'lekcia' : n < 5 ? 'lekcie' : 'lekcií'}` : ''}</small></span></button>`; }).join('')}</div>`;
+}
+function levelSheet(c){ Sheet.show('Úroveň · ' + LANGS[c].name); Sheet.body(`<div class="intro">${levelPickerHTML(c)}<p class="muted small">Nižšie úrovne zostanú v Lekciách ako voliteľné. Tvoj doterajší pokrok sa nemení.</p></div>`); }
 function renderCourse(view){
   const c = S.active, L = LANGS[c], p = P[c].it, cur = currentUnit(c), mine = customItems(c);
   const unitBtn = (u, items) => {
     const learned = items.filter(x => p[x.id]).length, full = items.length && learned === items.length, pct = items.length ? learned / items.length * 100 : 0;
     return `<button class="unit ${u.id === (cur && cur.id) && !full ? 'cur' : ''} ${full ? 'full' : ''}" data-act="unit" data-arg="${u.id}"><span class="unit-n">${full ? ic('check',20) : u.n || ic('plus',18)}</span><b>${esc(u.title)}</b><span class="cnt">${learned}/${items.length}</span><small>${esc(u.desc)}</small><span class="ubar"><i style="width:${pct.toFixed(0)}%"></i></span></button>`;
   };
+  const ul = userLevel(c), U = lvn(ul);
+  const groups = LEVELS.filter(l => UNITS[c].some(u => u.level === l.id)).map(l => {
+    const us = UNITS[c].filter(u => u.level === l.id), below = ul && lvn(l.id) < U;
+    return `<div class="lvgroup ${below ? 'below' : ''}"><h2 class="h2 lvh"><span class="lvtag">${l.id}</span>${esc(l.name)}${l.id === ul ? '<em class="lvme">Tvoja úroveň</em>' : below ? '<small class="muted">voliteľné</small>' : ''}</h2><div class="units">${us.map(u => unitBtn(u, u.items)).join('')}</div></div>`;
+  }).join('');
   view.innerHTML = `<section class="read-head"><p class="eyebrow">Lekcie · ${esc(L.name)}</p><h1 class="h1">Krok za krokom</h1>
-    <p class="muted">V každej lekcii sa so slovom najprv zoznámiš, potom ho spoznávaš medzi možnosťami, skladáš a nakoniec píšeš. Čo už vieš, preskočíš jedným ťuknutím.</p></section>
-    <div class="units">${UNITS[c].map(u => unitBtn(u, u.items)).join('')}
-      ${unitBtn({id:'mine', n:0, title:'Moje slovíčka', desc:mine.length ? 'Tvoje vlastné a z príbehov' : 'Pridaj si slová, ktoré potrebuješ ty'}, mine)}</div>`;
+    <div class="row-tools"><button class="btn sm" data-act="level-sheet">Úroveň: <b>${ul || 'nevybraná'}</b>${ul ? ' · ' + esc(lvName(ul)) : ''} · Zmeniť</button></div>
+    <p class="muted">${!ul ? 'Vyber si úroveň a lekcie aj úlohy sa jej prispôsobia.' : U <= 2 ? 'So slovom sa najprv zoznámiš, potom ho spoznávaš medzi možnosťami, skladáš a nakoniec píšeš.' : U === 3 ? 'Na tvojej úrovni viac skladáš, dopĺňaš do viet a píšeš.' : 'Na tvojej úrovni hlavne píšeš, dopĺňaš a skladáš celé vety.'} Čo už vieš, preskočíš jedným ťuknutím.</p></section>
+    ${groups}
+    <div class="lvgroup"><h2 class="h2 lvh"><span class="lvtag">+</span>Tvoje slovíčka</h2><div class="units">${unitBtn({id:'mine', n:0, title:'Moje slovíčka', desc:mine.length ? 'Tvoje vlastné a z príbehov' : 'Pridaj si slová, ktoré potrebuješ ty'}, mine)}</div></div>`;
 }
 function renderGames(view){
   const c = S.active, L = LANGS[c], g = gameList(c), due = dueItems(c).length;
@@ -1059,8 +1127,16 @@ function settingsHTML(){
       return `<div class="field" style="align-items:center"><span class="small" style="width:96px;flex:none;font-weight:600">${esc(LANGS[x].name)}<br><span class="muted" style="font-weight:400">${vs.length} ${vs.length === 1 ? 'hlas' : vs.length >= 2 && vs.length <= 4 ? 'hlasy' : 'hlasov'}</span></span>${vs.length
         ? `<select id="voice-${x}" data-set="voice" data-lang="${x}" style="flex:1;min-width:0;max-width:none" aria-label="Hlas pre ${esc(LANGS[x].name)}"><option value="" ${want ? '' : 'selected'}>Automaticky${cur ? ': ' + esc(cur.name.replace(/\s*\(.*\)/, '')) : ''}</option>${vs.map(v => `<option value="${esc(v.voiceURI || v.name)}" ${want && (want === v.voiceURI || want === v.name) ? 'selected' : ''}>${esc(Speech.label(v))}</option>`).join('')}</select><button class="speak" data-act="voice-test" data-arg="${x}" aria-label="Vypočuť hlas">${ic('speaker',16)}</button>`
         : `<span class="small muted" style="flex:1">Zariadenie zatiaľ nemá hlas pre tento jazyk.</span>`}</div>`; }).join('')}
-    <button class="btn sm" data-act="ctl" data-fn="refreshVoices">${ic('repeat',16)} Obnoviť zoznam hlasov</button>
+    <div class="btnrow"><button class="btn sm btn-primary" data-act="ctl" data-fn="testSound">${ic('speaker',16)} Vyskúšať zvuk</button><button class="btn sm" data-act="ctl" data-fn="refreshVoices">${ic('repeat',16)} Obnoviť zoznam hlasov</button></div>
+    <p class="small" id="sound-res" hidden></p>
   </div></div>
+  <details class="howto" id="sound-help"><summary>Nepočuješ hlas?</summary><ol>
+    <li><b>Vypni tichý režim.</b> Na boku iPhonu prepni prepínač (alebo na novších iPhonoch stlač tlačidlo Akcia), aby nebol oranžový. iOS hovorený hlas v tichom režime často stlmí.</li>
+    <li><b>Zvýš hlasitosť</b> tlačidlami na boku počas toho, ako hlas hrá, nie na obrazovke zvonenia.</li>
+    <li><b>Skontroluj Bluetooth</b>, či zvuk neide do slúchadiel alebo reproduktora.</li>
+    <li><b>Zavri appku a otvor ju znova</b> (v prepínači appiek ju potiahni nahor) a ťukni na Vyskúšať zvuk.</li>
+    <li>Ak hlas stále nejde len v appke na ploche, ale v Safari áno, ide o chybu iOS. Pomôže reštart iPhonu.</li>
+  </ol></details>
   <details class="howto"><summary>Ako pridať krajší hlas na iPhone</summary><ol>
     <li>Otvor <b>Nastavenia</b> → <b>Prístupnosť</b> → <b>Hovorený obsah</b> → <b>Hlasy</b>.</li>
     <li>Vyber jazyk a ťukni na ženský hlas: nemčina <b>Anna</b> alebo <b>Petra</b>, francúzština <b>Audrey</b> alebo <b>Aurélie</b>, španielčina <b>Mónica</b> alebo <b>Marisol</b>, portugalčina <b>Luciana</b> alebo <b>Fernanda</b>, ruština <b>Milena</b> alebo <b>Katya</b>.</li>
@@ -1069,6 +1145,7 @@ function settingsHTML(){
   </ol><p class="small muted">Hlasy Siri nemôže použiť žiadna appka v prehliadači, to je obmedzenie iPhonu. Na PC sú najkrajšie hlasy v prehliadači Edge (označené Natural).</p></details>
   </section>` : ''}
   <section class="sec"><h2 class="h2">Učenie</h2><div class="settings">
+    <div class="set col"><label>Úroveň<small>Podľa nej sa vyberajú lekcie, úlohy a príbehy</small></label>${S.order.map(x => `<div class="field" style="align-items:center"><span class="small" style="width:96px;flex:none;font-weight:600">${esc(LANGS[x].name)}</span><select data-set="level" data-lang="${x}" style="flex:1;min-width:0;max-width:none" aria-label="Úroveň ${esc(LANGS[x].name)}"><option value="" ${userLevel(x) ? '' : 'selected'}>Nevybraná</option>${LEVELS.map(l => `<option value="${l.id}" ${userLevel(x) === l.id ? 'selected' : ''}>${l.id} · ${esc(l.name)}</option>`).join('')}</select></div>`).join('')}</div>
     <div class="set"><label for="set-goal">Denný cieľ<small>Jedna lekcia je asi 30 XP</small></label><select id="set-goal" data-set="goal">${[[20,'20 XP · ~5 min'],[30,'30 XP · ~8 min'],[50,'50 XP · ~12 min'],[80,'80 XP · ~20 min']].map(o => `<option value="${o[0]}" ${S.goal === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></div>
     <div class="set"><label for="set-per">Nové slovíčka v lekcii</label><select id="set-per" data-set="perLesson">${[3,5,8].map(n => `<option ${S.perLesson === n ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
     <div class="set"><label for="set-rate">Rýchlosť hlasu</label><select id="set-rate" data-set="rate">${[[0.75,'Pomalšie'],[0.9,'Učebná'],[1,'Prirodzená']].map(o => `<option value="${o[0]}" ${S.rate === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></div>
@@ -1097,7 +1174,16 @@ function settingsSheet(){
     isSettings:true,
     paint(keep){ Sheet.body(settingsHTML(), keep); },
     input(e){ const t = e.target; if (t.dataset && t.dataset.set === 'custom') { S.custom = Object.assign({}, CUSTOM_DEFAULT, S.custom || {}); S.custom[t.dataset.key] = t.value; applyTheme(S.active); } },
-    refreshVoices(){ Speech.refresh(); ctrl.paint(true); toast(`Načítané hlasy: ${Speech.voices.length}`); }
+    refreshVoices(){ Speech.refresh(); ctrl.paint(true); toast(`Načítané hlasy: ${Speech.voices.length}`); },
+    testSound(){
+      const el = $('#sound-res'), c = S.active; if (!el) return;
+      el.hidden = false; el.style.color = ''; el.textContent = 'Prehrávam ukážku…';
+      Speech.say(SAMPLE[c], c, false, (ok, why) => {
+        const r = $('#sound-res'); if (!r) return;
+        if (ok) { r.style.color = 'var(--good)'; r.textContent = 'Hlas sa spustil. Ak ho napriek tomu nepočuješ, vypni tichý režim a zvýš hlasitosť.'; }
+        else { r.style.color = 'var(--bad)'; r.textContent = why === 'nosynth' ? 'Toto zariadenie nepodporuje čítanie nahlas.' : 'Hlas sa nespustil. Pozri tipy nižšie.'; const h = $('#sound-help'); if (h) h.open = true; }
+      });
+    }
   };
   Sheet.ctrl = ctrl; ctrl.paint(false);
 }
@@ -1106,6 +1192,7 @@ function applySetting(k, el){
   else if (k === 'rate') S.rate = parseFloat(el.value);
   else if (k === 'translit') S.translit = el.checked;
   else if (k === 'langAccent') S.langAccent = el.checked;
+  else if (k === 'level') { S.levels = S.levels || {}; if (el.value) S.levels[el.dataset.lang] = el.value; else delete S.levels[el.dataset.lang]; }
   else if (k === 'custom') { S.custom = Object.assign({}, CUSTOM_DEFAULT, S.custom || {}); S.custom[el.dataset.key] = el.value; }
   else if (k === 'voice') { S.voices = S.voices || {}; const x = el.dataset.lang; if (el.value) S.voices[x] = el.value; else delete S.voices[x]; save('settings'); Speech.say(SAMPLE[x], x); toast('Hlas zmenený.'); return; }
   else if (k === 'lang') {
@@ -1122,7 +1209,7 @@ function applySetting(k, el){
 function renderHeader(){
   const st = streak();
   $('#top').innerHTML = `<div class="wrap top-in"><div class="top-row"><span class="brand"><span class="brand-mark">${esc(S.active.toUpperCase())}</span>Jazykový pas</span><span class="top-actions"><span class="streak" title="Séria dní">${ic('flame',17)}${st}</span><button class="icon-btn sm" data-act="settings" aria-label="Nastavenia">${ic('gear',18)}</button></span></div>
-    <div class="chips">${S.order.map(x => { const d = dueItems(x).length; return `<button class="chip lc ${x === S.active ? 'on' : ''}" style="--la:${LANGS[x].c[0]};--lad:${LANGS[x].c[1]}" data-act="lang" data-arg="${x}" aria-pressed="${x === S.active}" aria-label="${esc(LANGS[x].name)}"><i class="dot"></i>${x.toUpperCase()}${d ? `<small>${d}</small>` : ''}</button>`; }).join('')}</div></div>`;
+    <div class="chips">${S.order.map(x => { return `<button class="chip lc ${x === S.active ? 'on' : ''}" style="--la:${LANGS[x].c[0]};--lad:${LANGS[x].c[1]}" data-act="lang" data-arg="${x}" aria-pressed="${x === S.active}" aria-label="${esc(LANGS[x].name)}"><i class="dot"></i>${x.toUpperCase()}${userLevel(x) ? `<small>${userLevel(x)}</small>` : ''}</button>`; }).join('')}</div></div>`;
 }
 const TABS = [['today','Dnes','today'],['course','Lekcie','course'],['games','Hry','games'],['read','Čítanie','read'],['progress','Pokrok','progress']];
 function renderTabs(){ $('#tabs').innerHTML = `<div class="tabs-in wrap">${TABS.map(t => `<button class="tab ${tab === t[0] ? 'on' : ''}" data-act="tab" data-arg="${t[0]}" ${tab === t[0] ? 'aria-current="page"' : ''}>${ic(t[2],23)}<span>${t[1]}</span></button>`).join('')}</div>`; }
@@ -1163,6 +1250,8 @@ const ACT = {
   },
   'story-done'(){ const c = S.active, st = stState(c, curStory(c)); if (st.done) return; st.done = true; addXP(10); logDay(c, 'g'); save(c); const y = window.scrollY; render(); window.scrollTo(0, y); toast('+10 XP za čítanie'); },
   settings(){ settingsSheet(); },
+  'level-sheet'(){ levelSheet(S.active); },
+  'set-level'(a){ if (!LV[a]) return; S.levels = S.levels || {}; S.levels[S.active] = a; save('settings'); if (Sheet.open) Sheet.close(); render(); window.scrollTo(0, 0); toast(`Úroveň ${a}: lekcie a úlohy sú prispôsobené.`); },
   theme(a){ S.theme = a; if (a === 'custom' && !S.custom) S.custom = Object.assign({}, CUSTOM_DEFAULT); save('settings'); render(); if (Sheet.ctrl && Sheet.ctrl.isSettings) Sheet.ctrl.paint(true); },
   'backup-later'(){ S.backupSnooze = Date.now(); save('settings'); render(); },
   'voice-test'(a){ if (LANGS[a]) Speech.say(SAMPLE[a], a); },
@@ -1174,6 +1263,7 @@ const ACT = {
   async install(){ if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch(e) {} installEvt = null; render(); }
 };
 
+['pointerdown','touchend','keydown'].forEach(ev => document.addEventListener(ev, () => Speech.unlock(), {once:true, capture:true}));
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]');
   if (!b) { if (e.target.id === 'pop') closePop(); return; }

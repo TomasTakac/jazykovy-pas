@@ -12,15 +12,19 @@ Nepotrebuje server ani účet: pokrok sa ukladá v zariadení a medzi zariadenia
 
 Potom ide do rozloženého opakovania (1 → 3 → 7 → … dní). Čím lepšie ho vieš, tým ťažšia forma: výber → skladanie → písanie → doplnenie do vety.
 
-## Obsah
-Nemčina 22 lekcií (264 slovíčok a fráz), francúzština, španielčina, portugalčina a ruština po 14 lekcií (140), v každom jazyku 3 príbehy s prekladom, 30 až 45 viet na doplnenie a slová do hry na rody.
+## Úrovne a obsah
+Pri každom jazyku si vyberieš úroveň A1 až C2. Podľa nej appka vyberá lekcie, príbehy a vety do hier a mení typ úloh: začiatočníci viac spoznávajú a vyberajú, pokročilí viac píšu, dopĺňajú do viet a skladajú celé vety.
+
+Nemčina 30 lekcií (360 slovíčok a fráz, A1–C2), francúzština, španielčina, portugalčina a ruština po 20 lekcií (200, A1–C2), 4 až 5 príbehov na jazyk (A1–C1) a 35 až 53 viet na doplnenie.
+
+Úroveň lekcie, vety alebo príbehu sa nastavuje v `content-levels.js`.
 
 ## Vzhľad
 V Nastaveniach (ozubené koliesko) je 11 farebných tém vrátane tmavej a čierno-ružovej a vlastná téma so štyrmi farbami.
 
 ## Súbory
 - `index.html`, `styles.css`, `app.js`: appka
-- `content.js`, `content-plus.js`: lekcie, vety, hry a príbehy (riadok lekcie: `slovo | význam | príkladová veta | preklad vety | poznámka`; v `content-plus.js` sa lekcie pridávajú cez `add()`, voliteľne s `after` na zaradenie za inú lekciu)
+- `content.js`, `content-plus.js`, `content-levels.js`: lekcie, vety, hry a príbehy (riadok lekcie: `slovo | význam | príkladová veta | preklad vety | poznámka`; v `content-plus.js` sa lekcie pridávajú cez `add()`, voliteľne s `after` na zaradenie za inú lekciu)
 - `sw.js`, `manifest.webmanifest`, `icons/`: inštalácia na plochu a práca offline (pri každej zmene zvýš `VERSION` v `sw.js`)
 
 ## Lokálne spustenie

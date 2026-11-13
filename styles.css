@@ -355,6 +355,20 @@ textarea.input{resize:vertical}
 .faq p{font-size:14px;color:var(--muted);margin-top:8px;line-height:1.55}
 .scn button small{font-size:11px;color:var(--muted);margin-left:4px;font-family:var(--f-ui)}
 .scn button.on small{color:inherit;opacity:.7}
+/* levels */
+.lvpick{display:grid;gap:8px;margin-top:4px}
+.lvbtn{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;align-items:center;text-align:left;padding:12px 14px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line)}
+.lvbtn b{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-family:var(--f-display);font-size:16px;background:var(--accent-soft);color:var(--accent-ink)}
+.lvbtn strong{display:block;font-weight:600}
+.lvbtn small{display:block;color:var(--muted);font-size:13px;line-height:1.35}
+.lvbtn.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.lvbtn.on b{background:var(--accent);color:var(--on-accent)}
+.plan .lvbtn{background:var(--bg)}
+.lvgroup{display:grid;gap:10px}
+.lvgroup.below .unit{opacity:.72}
+.lvh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lvtag{min-width:34px;height:26px;padding:0 6px;border-radius:8px;display:inline-grid;place-items:center;font-family:var(--f-display);font-size:12px;font-weight:700;background:var(--surface-2);color:var(--ink)}
+.lvme{font-style:normal;font-family:var(--f-ui);font-size:12px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);padding:3px 10px;border-radius:99px}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes pop{from{transform:scale(.9)}to{transform:none}}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
