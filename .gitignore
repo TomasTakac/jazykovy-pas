@@ -1,0 +1,3 @@
+# Tajné kľúče a lokálne súbory, ktoré sa nesmú dostať na GitHub
+.env.local
+.DS_Store
