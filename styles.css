@@ -371,6 +371,13 @@ textarea.input{resize:vertical}
 .lvgroup{display:grid;gap:10px}
 .lvgroup.below .unit{opacity:.72}
 .lvh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+details.lvgroup>summary{list-style:none;cursor:pointer;padding:8px 0;-webkit-tap-highlight-color:transparent;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px}
+details.lvgroup>summary::-webkit-details-marker{display:none}
+.lvt{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;min-width:0}
+.lvt .h2{margin:0}
+.lvcount{flex-basis:100%;font-family:var(--f-ui);font-size:13px;font-weight:500;color:var(--muted)}
+details.lvgroup>summary svg{transition:transform .2s;color:var(--muted)}
+details.lvgroup[open]>summary svg{transform:rotate(90deg)}
 .lvtag{min-width:34px;height:26px;padding:0 6px;border-radius:8px;display:inline-grid;place-items:center;font-family:var(--f-display);font-size:12px;font-weight:700;background:var(--surface-2);color:var(--ink)}
 .lvme{font-style:normal;font-family:var(--f-ui);font-size:12px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);padding:3px 10px;border-radius:99px}
 /* dialogues, speaking, grammar, achievements */

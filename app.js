@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 
-const VERSION = '2.3';
+const VERSION = '2.4';
 const CONTENT = window.CONTENT || {};
 
 /* ───────────── helpers ───────────── */
@@ -37,6 +37,7 @@ const ICONS = {
   speaker:'<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>',
   spark:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17l.7 1.8 1.8.7-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7z"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
+  chevron:'<path d="M9 6l6 6-6 6"/>',
   arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
   check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   repeat:'<path d="M4 12a8 8 0 0 1 13.7-5.6L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-13.7 5.6L4 15"/><path d="M4 20v-5h5"/>',
@@ -1397,7 +1398,9 @@ function renderCourse(view){
   const ul = userLevel(c), U = lvn(ul), gu = goalUnits(), gr = grammarOf(c);
   const groups = LEVELS.filter(l => UNITS[c].some(u => u.level === l.id)).map(l => {
     const us = UNITS[c].filter(u => u.level === l.id), below = ul && lvn(l.id) < U;
-    return `<div class="lvgroup ${below ? 'below' : ''}"><h2 class="h2 lvh"><span class="lvtag">${l.id}</span>${esc(l.name)}${l.id === ul ? '<em class="lvme">Tvoja úroveň</em>' : below ? '<small class="muted">voliteľné</small>' : ''}</h2><div class="units">${us.map(u => unitBtn(u, u.items)).join('')}</div></div>`;
+    const all = us.flatMap(u => u.items), done = all.filter(x => p[x.id]).length;
+    const open = !ul || l.id === ul || (cur && cur.level === l.id);
+    return `<details class="lvgroup ${below ? 'below' : ''}" ${open ? 'open' : ''}><summary class="lvsum"><span class="lvtag">${l.id}</span><span class="lvt"><span class="h2">${esc(l.name)}</span>${l.id === ul ? '<em class="lvme">Tvoja úroveň</em>' : ''}<small class="lvcount">${us.length} ${us.length === 1 ? 'lekcia' : us.length < 5 ? 'lekcie' : 'lekcií'} · ${done}/${all.length} slov${below ? ' · voliteľné' : ''}</small></span>${ic('chevron',18)}</summary><div class="units">${us.map(u => unitBtn(u, u.items)).join('')}</div></details>`;
   }).join('');
   view.innerHTML = `<section class="read-head"><p class="eyebrow">Lekcie · ${esc(L.name)}</p><h1 class="h1">Krok za krokom</h1>
     <div class="row-tools"><button class="btn sm" data-act="level-sheet">Úroveň: <b>${ul || 'nevybraná'}</b>${ul ? ' · ' + esc(lvName(ul)) : ''} · Zmeniť</button></div>
