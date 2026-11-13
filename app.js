@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 
-const VERSION = '2.4';
+const VERSION = '2.4.1';
 const CONTENT = window.CONTENT || {};
 
 /* ───────────── helpers ───────────── */
@@ -203,17 +203,27 @@ const Speech = {
   FEMALE:/(anna|helena|petra|marlene|vicki|katja|hedda|amélie|amelie|audrey|aurélie|aurelie|marie|julie|hortense|denise|mónica|monica|paulina|marisol|laura|elvira|luciana|joana|fernanda|francisca|maria|milena|katya|irina|svetlana|dariya|google deutsch|google français|google português|google русский|female)/i,
   ROBOT:/\b(eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox)\b/i,
   female(v){ return this.FEMALE.test(v.name); },
-  quality(v){ return /premium|prémi/i.test(v.name) ? 3 : /enhanced|vylepš|natural|neural|erweitert|online/i.test(v.name) ? 2 : 1; },
+  /* iPhone gives every variant the same name ("Anna"); the quality is only in voiceURI:
+     iOS 17+: com.apple.voice.compact|enhanced|premium.de-DE.Anna, older iOS: com.apple.ttsbundle.Anna-compact|-premium (= enhanced). */
+  quality(v){
+    const u = String(v.voiceURI || ''), n = String(v.name || '');
+    if (/voice\.premium\./i.test(u) || /premium|prémi/i.test(n)) return 3;
+    if (/voice\.enhanced\.|enhanced|ttsbundle\.[^ ]*-premium/i.test(u) || /enhanced|vylepš|natural|neural|erweitert|online/i.test(n)) return 2;
+    return 1;
+  },
+  apple: v => /^com\.apple\./i.test(String(v.voiceURI || '')),
   list(c){ return this.voices.filter(v => this.lang(v).startsWith(c)); },
-  sorted(c){ const sc = v => (this.ROBOT.test(v.name) ? -10 : 0) + (this.female(v) ? 4 : 0) + this.quality(v); return this.list(c).slice().sort((a, b) => sc(b) - sc(a) || a.name.localeCompare(b.name)); },
+  sorted(c){ const sc = v => (this.ROBOT.test(v.name) || /eloquence/i.test(v.voiceURI || '') ? -10 : 0) + (this.female(v) ? 4 : 0) + this.quality(v); return this.list(c).slice().sort((a, b) => sc(b) - sc(a) || a.name.localeCompare(b.name)); },
   refresh(){ if (!this.synth) return; try { this.voices = this.synth.getVoices() || []; } catch(e) {} },
-  label(v){ const q = this.quality(v); return v.name.replace(/\s*\((enhanced|premium|vylepšený|prémiový)\)/i, '') + (this.female(v) ? ' · ženský' : '') + (q === 3 ? ' · prémiový' : q === 2 ? ' · vylepšený' : '') + (this.ROBOT.test(v.name) ? ' · robotický' : ''); },
+  label(v){ const q = this.quality(v); return v.name.replace(/\s*\((enhanced|premium|vylepšený|prémiový)\)/i, '') + (this.female(v) ? ' · ženský' : '') + (q === 3 ? ' · prémiový' : q === 2 ? ' · vylepšený' : this.apple(v) ? ' · základný' : '') + (this.ROBOT.test(v.name) || /eloquence/i.test(v.voiceURI || '') ? ' · robotický' : ''); },
+  short(v){ const q = this.quality(v); return v.name.replace(/\s*\(.*\)/, '') + (q === 3 ? ' · prémiový' : q === 2 ? ' · vylepšený' : this.apple(v) ? ' · základný' : ''); },
+  labels(vs){ const seen = {}; return vs.map(v => { const l = this.label(v); seen[l] = (seen[l] || 0) + 1; return seen[l] > 1 ? l + ' (' + seen[l] + ')' : l; }); },
   pick(c){
     const vs = this.list(c); if (!vs.length) return null;
     const want = S.voices && S.voices[c];
     if (want) { const v = vs.find(x => x.voiceURI === want || x.name === want); if (v) return v; }
     const loc = LANGS[c].loc.toLowerCase();
-    const score = v => (this.female(v) ? 6 : 0) + this.quality(v) * 2 + (this.lang(v) === loc ? 1 : 0) - (this.ROBOT.test(v.name) ? 20 : 0);
+    const score = v => (this.female(v) ? 6 : 0) + this.quality(v) * 2 + (this.lang(v) === loc ? 1 : 0) - (this.ROBOT.test(v.name) || /eloquence/i.test(v.voiceURI || '') ? 20 : 0);
     return vs.slice().sort((a, b) => score(b) - score(a))[0];
   },
   /* iOS: speech is silenced by the Ring/Silent switch and in home-screen apps it must be unlocked by a tap.
@@ -1520,7 +1530,7 @@ function settingsHTML(){
     <p class="small muted">Appka používa hlasy, ktoré má tvoje zariadenie. Automaticky vyberie ženský hlas v najlepšej kvalite. Ťukni na reproduktor a vypočuj si ho.</p>
     ${S.order.map(x => { const vs = Speech.sorted(x), cur = Speech.pick(x), want = (S.voices || {})[x] || '';
       return `<div class="field" style="align-items:center"><span class="small" style="width:96px;flex:none;font-weight:600">${esc(LANGS[x].name)}<br><span class="muted" style="font-weight:400">${vs.length} ${vs.length === 1 ? 'hlas' : vs.length >= 2 && vs.length <= 4 ? 'hlasy' : 'hlasov'}</span></span>${vs.length
-        ? `<select id="voice-${x}" data-set="voice" data-lang="${x}" style="flex:1;min-width:0;max-width:none" aria-label="Hlas pre ${esc(LANGS[x].name)}"><option value="" ${want ? '' : 'selected'}>Automaticky${cur ? ': ' + esc(cur.name.replace(/\s*\(.*\)/, '')) : ''}</option>${vs.map(v => `<option value="${esc(v.voiceURI || v.name)}" ${want && (want === v.voiceURI || want === v.name) ? 'selected' : ''}>${esc(Speech.label(v))}</option>`).join('')}</select><button class="speak" data-act="voice-test" data-arg="${x}" aria-label="Vypočuť hlas">${ic('speaker',16)}</button>`
+        ? `<select id="voice-${x}" data-set="voice" data-lang="${x}" style="flex:1;min-width:0;max-width:none;font-size:15px" aria-label="Hlas pre ${esc(LANGS[x].name)}"><option value="" ${want ? '' : 'selected'}>${cur ? 'Auto: ' + esc(Speech.short(cur)) : 'Automaticky'}</option>${(() => { const ls = Speech.labels(vs); return vs.map((v, i) => `<option value="${esc(v.voiceURI || v.name)}" ${want && (want === v.voiceURI || want === v.name) ? 'selected' : ''}>${esc(ls[i])}</option>`).join(''); })()}</select><button class="speak" data-act="voice-test" data-arg="${x}" aria-label="Vypočuť hlas">${ic('speaker',16)}</button>`
         : `<span class="small muted" style="flex:1">Zariadenie zatiaľ nemá hlas pre tento jazyk.</span>`}</div>`; }).join('')}
     <div class="btnrow"><button class="btn sm btn-primary" data-act="ctl" data-fn="testSound">${ic('speaker',16)} Vyskúšať zvuk</button><button class="btn sm" data-act="ctl" data-fn="refreshVoices">${ic('repeat',16)} Obnoviť zoznam hlasov</button></div>
     <p class="small" id="sound-res" hidden></p>
@@ -1535,9 +1545,13 @@ function settingsHTML(){
   <details class="howto"><summary>Ako pridať krajší hlas na iPhone</summary><ol>
     <li>Otvor <b>Nastavenia</b> → <b>Prístupnosť</b> → <b>Hovorený obsah</b> → <b>Hlasy</b>.</li>
     <li>Vyber jazyk a ťukni na ženský hlas: nemčina <b>Anna</b> alebo <b>Petra</b>, francúzština <b>Audrey</b> alebo <b>Aurélie</b>, španielčina <b>Mónica</b> alebo <b>Marisol</b>, portugalčina <b>Luciana</b> alebo <b>Fernanda</b>, ruština <b>Milena</b> alebo <b>Katya</b>.</li>
-    <li>Stiahni verziu <b>Vylepšený</b> alebo <b>Prémiový</b> (ikonka so šípkou). Môže mať aj niekoľko sto MB, preto cez Wi‑Fi.</li>
-    <li>Appku úplne zavri (v prepínači appiek ju potiahni nahor), otvor ju znova a tu ťukni na <b>Obnoviť zoznam hlasov</b>.</li>
-  </ol><p class="small muted">Hlasy Siri nemôže použiť žiadna appka v prehliadači, to je obmedzenie iPhonu. Na PC sú najkrajšie hlasy v prehliadači Edge (označené Natural).</p></details>
+    <li>Stiahni verziu <b>Vylepšený</b> (ikonka so šípkou). Má asi 100 až 300 MB, preto cez Wi‑Fi. Hlasy v časti Živá reč sú iné nastavenie, appka ich nepoužíva.</li>
+    <li>Appku úplne zavri (v prepínači appiek ju potiahni nahor), otvor ju znova a tu ťukni na <b>Obnoviť zoznam hlasov</b>. Pri hlase uvidíš, či je základný, vylepšený alebo prémiový.</li>
+  </ol><p class="small muted">Webovým appkám (Safari aj appka na ploche) iPhone nesprístupní všetky hlasy. Prémiové a Siri hlasy často chýbajú, vylepšené zvyčajne fungujú. Čo presne iPhone appke dáva, uvidíš nižšie v časti Hlasy v tomto zariadení. Na PC sú najkrajšie hlasy v prehliadači Edge (označené Natural).</p></details>
+  <details class="howto"><summary>Hlasy v tomto zariadení</summary>
+    <p class="small muted" style="margin-top:8px">Toto je všetko, čo iPhone appke ponúka. Ak tu stiahnutý hlas nie je, iPhone ho webovým appkám nesprístupnil.</p>
+    ${S.order.map(x => { const vs = Speech.sorted(x), ls = Speech.labels(vs); return `<p class="small" style="margin-top:10px"><b>${esc(LANGS[x].name)}</b> (${vs.length})</p>${vs.length ? `<ul class="vlist">${vs.map((v, i) => `<li>${esc(ls[i])}<small>${esc(v.lang)} · ${esc(v.voiceURI || '')}</small></li>`).join('')}</ul>` : '<p class="small muted">Žiadny hlas.</p>'}`; }).join('')}
+  </details>
   </section>` : ''}
   <section class="sec"><h2 class="h2">Učenie</h2><div class="settings">
     <div class="set"><label for="set-why">Prečo sa učíš<small>Lekcie pre tvoj cieľ sú označené</small></label><select id="set-why" data-set="why"><option value="" ${S.why ? '' : 'selected'}>Nevybrané</option>${GOALS.map(g => `<option value="${g.id}" ${S.why === g.id ? 'selected' : ''}>${esc(g.name)}</option>`).join('')}</select></div>

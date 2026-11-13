@@ -421,3 +421,5 @@ details.lvgroup[open]>summary svg{transform:rotate(90deg)}
 @keyframes stamp{from{transform:scale(1.9) rotate(-32deg);opacity:0}to{transform:scale(1) rotate(-12deg);opacity:1}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 @media (min-width:600px){.view{padding-top:22px}}
+.vlist{display:grid;gap:6px;margin:6px 0 0;padding-left:18px;font-size:14px}
+.vlist small{display:block;font-size:11px;color:var(--muted);word-break:break-all}
