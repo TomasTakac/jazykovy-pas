@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 
-const VERSION = '2.4.1';
+const VERSION = '2.4.2';
 const CONTENT = window.CONTENT || {};
 
 /* ───────────── helpers ───────────── */
@@ -1341,12 +1341,14 @@ function weekHTML(){
 function ring(v, max){ const r = 38, C = 2 * Math.PI * r, p = Math.min(1, v / max);
   return `<svg class="ring" viewBox="0 0 88 88" width="88" height="88" aria-hidden="true"><circle cx="44" cy="44" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="8"/><circle cx="44" cy="44" r="${r}" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - p)).toFixed(1)}" transform="rotate(-90 44 44)"/></svg>`; }
 const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
-const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isAndroid = () => /Android/i.test(navigator.userAgent);
+const isIOS = () => !isAndroid() && (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
 let installEvt = null;
 function installHTML(){
   if (isStandalone() || S.installHidden || location.protocol === 'file:') return '';
   const txt = isIOS() ? 'V Safari ťukni na Zdieľať a vyber Pridať na plochu. Appka sa potom otvára na celú obrazovku a funguje aj bez internetu.'
-    : installEvt ? 'Nainštaluj si appku, aby sa otvárala v samostatnom okne a fungovala aj offline.'
+    : installEvt ? 'Nainštaluj si appku, aby sa otvárala ako bežná aplikácia a fungovala aj offline.'
+    : isAndroid() ? 'V Chrome ťukni vpravo hore na ⋮ a vyber Inštalovať aplikáciu (alebo Pridať na plochu). Appka sa potom otvára na celú obrazovku a funguje aj bez internetu.'
     : 'V Chrome alebo Edge nájdeš v ponuke prehliadača položku Inštalovať. Na iPhone použi Safari a Pridať na plochu.';
   return `<aside class="install"><b>Pridaj si Jazykový pas ako appku</b><button class="x" data-act="hide-install">Skryť</button><p>${txt}</p>${installEvt ? `<button class="btn sm btn-primary" data-act="install">Nainštalovať</button>` : ''}</aside>`;
 }
@@ -1541,6 +1543,7 @@ function settingsHTML(){
     <li><b>Skontroluj Bluetooth</b>, či zvuk neide do slúchadiel alebo reproduktora.</li>
     <li><b>Zavri appku a otvor ju znova</b> (v prepínači appiek ju potiahni nahor) a ťukni na Vyskúšať zvuk.</li>
     <li>Ak hlas stále nejde len v appke na ploche, ale v Safari áno, ide o chybu iOS. Pomôže reštart iPhonu.</li>
+    <li><b>Android:</b> zvýš hlasitosť médií (nie zvonenia). Ak niektorý jazyk mlčí, otvor Nastavenia → Prístupnosť (alebo Systém → Jazyky) → Prevod textu na reč, vyber Google a stiahni hlas pre nemčinu, francúzštinu a ďalšie jazyky. Potom appku zavri a otvor znova.</li>
   </ol></details>
   <details class="howto"><summary>Ako pridať krajší hlas na iPhone</summary><ol>
     <li>Otvor <b>Nastavenia</b> → <b>Prístupnosť</b> → <b>Hovorený obsah</b> → <b>Hlasy</b>.</li>
