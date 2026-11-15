@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 
-const VERSION = '2.4.2';
+const VERSION = '2.4.3';
 const CONTENT = window.CONTENT || {};
 
 /* ───────────── helpers ───────────── */

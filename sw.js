@@ -1,8 +1,8 @@
 /* Offline support: app files are fetched fresh when online and served from cache when offline.
    Bump VERSION on every release so old caches get cleaned up. */
-const VERSION = 'jp-2.4.2';
+const VERSION = 'jp-2.4.3';
 const SHELL = ['./', './index.html', './styles.css', './app.js', './content.js', './content-plus.js', './content-levels.js', './content-extra.js', './content-core.js', './core-de.js', './core-fr.js', './core-es.js', './core-pt.js', './core-ru.js', './manifest.webmanifest',
-  './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
+  './icons/icon-192-v2.png', './icons/icon-512-v2.png', './icons/icon-maskable-512-v2.png', './icons/apple-touch-icon-v2.png', './icons/favicon-32-v2.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL.map(u => new Request(u, {cache:'reload'})))).then(() => self.skipWaiting()));

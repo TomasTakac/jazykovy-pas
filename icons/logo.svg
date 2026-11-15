@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Jazykový pas: lips with a playful tongue ("jazyk" = tongue and language). Full-bleed for maskable icons;
+       the artwork stays inside the 80 % safe circle. -->
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0" stop-color="#2A3460"/>
+      <stop offset="1" stop-color="#161C36"/>
+    </radialGradient>
+    <linearGradient id="lip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FF5C86"/>
+      <stop offset="1" stop-color="#E02F5E"/>
+    </linearGradient>
+    <linearGradient id="tongue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FF9BB4"/>
+      <stop offset="1" stop-color="#FF7A9C"/>
+    </linearGradient>
+    <clipPath id="belowTeeth">
+      <path d="M0 262 C120 268 392 268 512 262 L512 512 L0 512 Z"/>
+    </clipPath>
+    <clipPath id="mouth">
+      <path d="M126 246 C170 236 214 240 256 242 C298 240 342 236 386 246 C362 296 314 324 256 326 C198 324 150 296 126 246 Z"/>
+    </clipPath>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g transform="translate(256 256) scale(1.15) translate(-256 -296)">
+  <!-- lips -->
+  <path d="M92 244 C128 198 178 172 214 180 C234 184 247 194 256 206 C265 194 278 184 298 180 C334 172 384 198 420 244 C398 318 334 358 256 360 C178 358 114 318 92 244 Z" fill="url(#lip)"/>
+  <!-- open mouth -->
+  <path d="M126 246 C170 236 214 240 256 242 C298 240 342 236 386 246 C362 296 314 324 256 326 C198 324 150 296 126 246 Z" fill="#4A0F27"/>
+  <g clip-path="url(#mouth)">
+    <!-- teeth -->
+    <path d="M120 236 L392 236 L392 262 C330 270 182 270 120 262 Z" fill="#FFF7F2"/>
+  </g>
+  <!-- tongue, sticking out over the lower lip, tilted a little for fun -->
+  <g clip-path="url(#belowTeeth)"><g transform="rotate(-9 256 286)">
+    <path d="M194 286 C194 262 318 262 318 286 C321 320 325 352 320 380 C312 416 288 434 256 434 C224 434 200 416 192 380 C187 352 191 320 194 286 Z" fill="url(#tongue)"/>
+    <path d="M256 300 C254 330 254 360 256 392" stroke="#E0557A" stroke-width="9" stroke-linecap="round" fill="none"/>
+    <ellipse cx="222" cy="392" rx="9" ry="16" fill="#FFFFFF" opacity=".25"/>
+  </g></g>
+  <!-- shine -->
+  <ellipse cx="190" cy="206" rx="34" ry="11" transform="rotate(-14 190 206)" fill="#FFFFFF" opacity=".28"/>
+  </g>
+</svg>
