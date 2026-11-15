@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 
-const VERSION = '2.4.3';
+const VERSION = '2.4.4';
 const CONTENT = window.CONTENT || {};
 
 /* ───────────── helpers ───────────── */
@@ -682,7 +682,7 @@ function genderGame(c){
       const w = list[st.i];
       Sheet.body(`<div class="gg-stage" id="gg"><p class="gg-art" id="gg-art"></p><p class="gg-word" lang="${c}">${esc(w.w)}</p>${trLine(c, w.w)}<p class="muted">${esc(w.sk)}</p></div>
         <p class="gg-score"><span>Body <b>${st.score}</b></span><span>Séria <b>${st.combo}</b></span></p>
-        <div class="gg-btns" style="--n:${arts.length}">${arts.map(a => `<button class="art" style="--ac:${col(a)}" data-act="ctl" data-fn="pick" data-arg="${esc(a)}">${esc(a)}</button>`).join('')}</div>`, true);
+        <div class="gg-btns" style="--cols:${arts.length}">${arts.map(a => `<button class="art" style="--ac:${col(a)}" data-act="ctl" data-fn="pick" data-arg="${esc(a)}">${esc(a)}</button>`).join('')}</div>`, true);
     },
     pick(a){
       if (!st.run || st.lock) return; const w = list[st.i], right = a === w.a; st.lock = true;

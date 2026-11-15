@@ -209,7 +209,7 @@ textarea.input{resize:vertical}
 .gg-word{font-family:var(--f-read);font-size:clamp(34px,10vw,50px);font-weight:600;line-height:1.15;overflow-wrap:anywhere}
 .gg-score{display:flex;justify-content:space-between;color:var(--muted);font-variant-numeric:tabular-nums}
 .gg-score b{color:var(--ink);font-family:var(--f-display)}
-.gg-btns{display:grid;gap:10px;grid-template-columns:repeat(var(--n),minmax(0,1fr))}
+.gg-btns{display:grid;gap:10px;grid-template-columns:repeat(var(--cols,3),minmax(0,1fr))}
 .art{padding:22px 4px;border-radius:18px;font-family:var(--f-display);font-weight:700;font-size:20px;background:var(--ac);color:var(--on-art);border-bottom:4px solid color-mix(in srgb,var(--ac) 70%,#000);transition:transform .08s}
 .art:active{transform:translateY(2px)}
 .art-legend{display:flex;gap:8px;flex-wrap:wrap}
