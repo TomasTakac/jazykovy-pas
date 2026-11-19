@@ -1,6 +1,6 @@
 # Jazykový pas
 
-Offline appka na učenie jazykov (nemčina, francúzština, španielčina, portugalčina, ruština) pre iPhone aj PC.
+Offline appka na učenie jazykov (nemčina, angličtina, francúzština, španielčina, portugalčina, ruština) pre iPhone, Android aj PC.
 Nepotrebuje server ani účet: pokrok sa ukladá v zariadení a medzi zariadeniami sa prenáša zálohou (Pokrok → Záloha a prenos).
 
 ## Ako sa učí nové slovo
@@ -18,6 +18,7 @@ Pri každom jazyku si vyberieš úroveň A1 až C2, alebo si ju zistíš krátky
 | | Lekcie | Slovíčka a frázy | Príbehy | Rozhovory | Gramatika |
 |---|---|---|---|---|---|
 | Nemčina | 93 | 1 093 | 6 | 5 | 7 tém |
+| Angličtina | 90 | 1 067 | 5 | 5 | 5 tém |
 | FR, ES, PT, RU | 82 | 896 – 917 | 5 | 4 | 4 témy |
 
 Základ tvorí 60 tém s asi 750 najčastejšími slovami a frázami, ktoré sa dnes naozaj používajú (čísla, zámená, každodenné slovesá, otázky, krátke odpovede, mobil a internet, úrady, bývanie, práca…). Pre každý význam je jedno bežné slovo, nie zoznam synoným; ďalšie varianty sú v poznámke.
@@ -42,8 +43,8 @@ V Nastaveniach (ozubené koliesko) je 11 farebných tém vrátane tmavej a čier
 
 ## Súbory
 - `index.html`, `styles.css`, `app.js`: appka
-- `content.js`, `content-plus.js`, `content-levels.js`, `content-extra.js`: lekcie, vety, hry, príbehy, rozhovory a gramatika (riadok lekcie: `slovo | význam | príkladová veta | preklad vety | poznámka`; v `content-plus.js` sa lekcie pridávajú cez `add()`, voliteľne s `after` na zaradenie za inú lekciu)
-- `content-core.js`: spoločný zoznam základných slov (slovenský význam a príkladová veta); `core-de.js`, `core-fr.js`, `core-es.js`, `core-pt.js`, `core-ru.js`: preklady v rovnakom poradí (`slovo | príklad | poznámka`, `-` = vynechať). Slová, ktoré jazyk už má, sa preskočia.
+- `content.js`, `content-plus.js`, `content-levels.js`, `content-extra.js`, `content-en.js` (angličtina): lekcie, vety, hry, príbehy, rozhovory a gramatika (riadok lekcie: `slovo | význam | príkladová veta | preklad vety | poznámka`; v `content-plus.js` sa lekcie pridávajú cez `add()`, voliteľne s `after` na zaradenie za inú lekciu)
+- `content-core.js`: spoločný zoznam základných slov (slovenský význam a príkladová veta); `core-de.js`, `core-en.js`, `core-fr.js`, `core-es.js`, `core-pt.js`, `core-ru.js`: preklady v rovnakom poradí (`slovo | príklad | poznámka`, `-` = vynechať). Slová, ktoré jazyk už má, sa preskočia.
 - `reminders/`: denné pripomienky do kalendára (.ics)
 - `sw.js`, `manifest.webmanifest`, `icons/`: inštalácia na plochu a práca offline (pri každej zmene zvýš `VERSION` v `sw.js`)
 

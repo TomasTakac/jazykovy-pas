@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 
-const VERSION = '2.4.4';
+const VERSION = '2.5.0';
 const CONTENT = window.CONTENT || {};
 
 /* ───────────── helpers ───────────── */
@@ -63,13 +63,14 @@ function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add
 /* ───────────── languages ───────────── */
 const LANGS = {
   de:{name:'Nemčina', in:'v nemčine', acc:'nemčinu', adv:'po nemecky', self:'Deutsch', loc:'de-DE', c:['#D08A00','#F2B33D','#865700','#FBEFD5','#3A2D12','#1E1503','#1E1503'], hello:['Guten Morgen!','Guten Tag!','Guten Abend!'], bravo:'Super gemacht!'},
+  en:{name:'Angličtina', in:'v angličtine', acc:'angličtinu', adv:'po anglicky', self:'English (UK)', loc:'en-GB', c:['#0A7896','#52C3E2','#075F78','#DDF0F6','#0F313B','#FFFFFF','#04212A'], hello:['Good morning!','Good afternoon!','Good evening!'], bravo:'Well done!'},
   fr:{name:'Francúzština', in:'vo francúzštine', acc:'francúzštinu', adv:'po francúzsky', self:'Français', loc:'fr-FR', c:['#2F5BEA','#8AA5FF','#2448C4','#E4EAFF','#1C2648','#FFFFFF','#0D1633'], hello:['Bonjour !','Bonjour !','Bonsoir !'], bravo:'Bravo !'},
   es:{name:'Španielčina', in:'v španielčine', acc:'španielčinu', adv:'po španielsky', self:'Español', loc:'es-ES', c:['#D9412F','#FF8777','#B3321F','#FCE4E0','#3F1C17','#FFFFFF','#2A0B07'], hello:['¡Buenos días!','¡Buenas tardes!','¡Buenas noches!'], bravo:'¡Muy bien!'},
   pt:{name:'Portugalčina', in:'v portugalčine', acc:'portugalčinu', adv:'po portugalsky', self:'Português (BR)', loc:'pt-BR', c:['#0F8A62','#48D3A2','#0A6E4E','#DBF3EA','#123629','#FFFFFF','#06281C'], hello:['Bom dia!','Boa tarde!','Boa noite!'], bravo:'Muito bem!'},
   ru:{name:'Ruština', in:'v ruštine', acc:'ruštinu', adv:'po rusky', self:'Русский', loc:'ru-RU', c:['#6F45DB','#B096FF','#5A32C2','#ECE5FD','#2A2049','#FFFFFF','#1A0F3A'], hello:['Доброе утро!','Добрый день!','Добрый вечер!'], bravo:'Отлично!'}
 };
-const SAMPLE = {de:'Hallo! Schön, dich kennenzulernen. Wie geht es dir?', fr:'Bonjour ! Ravie de te rencontrer. Comment ça va ?', es:'¡Hola! Encantada de conocerte. ¿Qué tal?', pt:'Olá! Prazer em te conhecer. Tudo bem?', ru:'Привет! Рада познакомиться. Как дела?'};
-const CHARS = {de:['ä','ö','ü','ß'], fr:['é','è','ê','à','ç','ù','œ'], es:['á','é','í','ó','ú','ñ','¿','¡'], pt:['á','â','ã','à','ç','é','ê','ó','õ'], ru:[]};
+const SAMPLE = {de:'Hallo! Schön, dich kennenzulernen. Wie geht es dir?', en:'Hello! Nice to meet you. How are you?', fr:'Bonjour ! Ravie de te rencontrer. Comment ça va ?', es:'¡Hola! Encantada de conocerte. ¿Qué tal?', pt:'Olá! Prazer em te conhecer. Tudo bem?', ru:'Привет! Рада познакомиться. Как дела?'};
+const CHARS = {de:['ä','ö','ü','ß'], en:[], fr:['é','è','ê','à','ç','ù','œ'], es:['á','é','í','ó','ú','ñ','¿','¡'], pt:['á','â','ã','à','ç','é','ê','ó','õ'], ru:[]};
 const G_LABEL = {m:'der · mužský rod', f:'die · ženský rod', n:'das · stredný rod', p:'die · množné číslo'};
 
 /* ───────────── levels ───────────── */
@@ -108,7 +109,7 @@ for (const c in LANGS) {
 }
 
 /* ───────────── state & storage ───────────── */
-const DEFAULT = () => ({v:2, updatedAt:0, active:'de', order:['de','fr','es','pt','ru'], goal:30, perLesson:5, rate:0.9, translit:true, voices:{}, levels:{}, theme:'auto', langAccent:false, custom:null, why:null, whySkip:false, flags:{}, ach:{}, days:{}, installHidden:false, lastBackup:0, backupSnooze:0});
+const DEFAULT = () => ({v:2, updatedAt:0, active:'de', order:['de','en','fr','es','pt','ru'], goal:30, perLesson:5, rate:0.9, translit:true, voices:{}, levels:{}, theme:'auto', langAccent:false, custom:null, why:null, whySkip:false, flags:{}, ach:{}, days:{}, installHidden:false, lastBackup:0, backupSnooze:0});
 const emptyP = () => ({updatedAt:0, it:{}, custom:[], best:{}, st:{}, dlg:{}, gram:{}, log:{d:'', l:0, r:0, g:0}});
 let S = DEFAULT();
 const P = {};
@@ -116,6 +117,10 @@ let tab = ls('tab') || 'today';
 function load(){
   S = Object.assign(DEFAULT(), ls('settings') || {});
   S.order = (S.order || []).filter(c => LANGS[c]); if (!S.order.length) S.order = ['de'];
+  /* A language added in an update appears once for existing users; if they remove it later, it stays removed. */
+  const known = S.known || ['de','fr','es','pt','ru'];
+  for (const c in LANGS) if (!known.includes(c) && !S.order.includes(c)) S.order.push(c);
+  S.known = Object.keys(LANGS);
   if (!S.order.includes(S.active)) S.active = S.order[0];
   for (const c in LANGS) {
     P[c] = Object.assign(emptyP(), ls('p-'+c) || {});
@@ -200,8 +205,8 @@ const Speech = {
   lang: v => String(v.lang || '').toLowerCase().replace('_','-'),
   can(c){ if (!this.synth) return false; if (!this.voices.length) return true; return this.voices.some(v => this.lang(v).startsWith(c)); },
   /* Device voices don't report gender, so we recognise the common female voices on iPhone, Mac, Windows and Chrome by name. */
-  FEMALE:/(anna|helena|petra|marlene|vicki|katja|hedda|amélie|amelie|audrey|aurélie|aurelie|marie|julie|hortense|denise|mónica|monica|paulina|marisol|laura|elvira|luciana|joana|fernanda|francisca|maria|milena|katya|irina|svetlana|dariya|google deutsch|google français|google português|google русский|female)/i,
-  ROBOT:/\b(eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox)\b/i,
+  FEMALE:/(anna|helena|petra|marlene|vicki|katja|hedda|amélie|amelie|audrey|aurélie|aurelie|marie|julie|hortense|denise|mónica|monica|paulina|marisol|laura|elvira|luciana|joana|fernanda|francisca|maria|milena|katya|irina|svetlana|dariya|google deutsch|google français|google português|google русский|female|samantha|karen|moira|tessa|serena|kate|martha|fiona|victoria|allison|ava|susan|zoe|nicky|libby|sonia|jenny|aria|emma|hazel|stephanie|google uk english female|google us english)/i,
+  ROBOT:/\b(eddy|flo|fred|junior|ralph|kathy|grandma|grandpa|reed|rocko|sandy|shelley|albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox)\b/i,
   female(v){ return this.FEMALE.test(v.name); },
   /* iPhone gives every variant the same name ("Anna"); the quality is only in voiceURI:
      iOS 17+: com.apple.voice.compact|enhanced|premium.de-DE.Anna, older iOS: com.apple.ttsbundle.Anna-compact|-premium (= enhanced). */
@@ -650,7 +655,7 @@ function gameList(c){
     {id:'dict', icon:ic('dict'), t:'Diktát', d:'Vypočuj si vetu a napíš ju', ok:Speech.can(c) && dictPool(c).length >= 3},
     {id:'pairs', icon:ic('pairs'), t:'Páry', d:'Spoj slovo s prekladom na čas', ok:pairPool(c).length >= 5},
     {id:'speak', icon:ic('mic'), t:'Hovor nahlas', d:Rec.can() ? 'Povieš vetu a appka ti povie, ako ti to išlo' : 'Nahraj sa a porovnaj sa so vzorom', ok:canSpeakPractice() && dictPool(c).length >= 3}
-  ];
+  ].filter(g => g.id !== 'gender' || G);
 }
 function tile(o){ return `<button class="tile" data-act="${o.act}" data-arg="${esc(o.arg||'')}" ${o.dis ? 'disabled' : ''}><span class="tile-ic">${o.icon}</span><b>${esc(o.t)}</b><small>${esc(o.d)}</small>${o.badge ? `<em class="badge">${esc(o.badge)}</em>` : ''}</button>`; }
 function suggestTiles(c, skip){
@@ -1313,6 +1318,7 @@ const REM_TIMES = ['07:00','08:00','12:00','17:00','18:00','19:00','20:00','21:0
 function guideHTML(){
   const s = achStats(), c = S.active, cur = Object.keys(P[c].it).length, pct = Math.min(100, cur / 2000 * 100);
   const hours = {es:'asi 600', pt:'asi 600', fr:'asi 750', de:'asi 900', ru:'asi 1 100'}[c];
+  const fsi = c === 'en' ? 'Angličtina patrí pre Slováka k najľahším jazykom: veľa slov už poznáš z filmov, hudby a internetu. Najťažšia je výslovnosť a nepravidelné slovesá, preto si slová púšťaj nahlas a hovor ich po appke.' : null;
   return `<section class="sec"><h2 class="h2">Ako sa naučiť jazyk najrýchlejšie</h2>
     <div class="settings"><div class="set col">
       <b>${esc(LANGS[c].name)}: vieš ${cur} ${slovicok(cur)}</b>
@@ -1327,7 +1333,7 @@ function guideHTML(){
       <li><b>Chyby sú v poriadku</b><span>Kto sa nebojí chýb, učí sa rýchlejšie. Chybné slovíčko sa ti vráti skôr a o to lepšie si ho zapamätáš.</span></li>
       <li><b>Jazyk do bežného dňa</b><span>Prepni si telefón do jazyka, pusti si seriál s titulkami, nájdi si partnera na rozhovor. Appka je základ, skutočný život je tréning.</span></li>
     </ol>
-    <p class="small muted">Americký inštitút FSI odhaduje, že rodený Angličan potrebuje na dobrú pracovnú úroveň ${hours} hodín výučby pre ${esc(LANGS[c].acc)}. Pre Slováka je ruština výrazne ľahšia vďaka príbuznosti jazykov. Pri 30 minútach denne to sú roky, preto je kľúčové učiť sa pravidelne a mať jazyk okolo seba aj mimo appky.</p>
+    <p class="small muted">${fsi ? fsi + ' ' : `Americký inštitút FSI odhaduje, že rodený Angličan potrebuje na dobrú pracovnú úroveň ${hours} hodín výučby pre ${esc(LANGS[c].acc)}. Pre Slováka je ruština výrazne ľahšia vďaka príbuznosti jazykov. Pri 30 minútach denne to sú roky, preto `}${fsi ? 'Je' : 'je'} kľúčové učiť sa pravidelne a mať jazyk okolo seba aj mimo appky.</p>
   </section>`;
 }
 

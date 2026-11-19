@@ -1,7 +1,7 @@
 /* Offline support: app files are fetched fresh when online and served from cache when offline.
    Bump VERSION on every release so old caches get cleaned up. */
-const VERSION = 'jp-2.4.4';
-const SHELL = ['./', './index.html', './styles.css', './app.js', './content.js', './content-plus.js', './content-levels.js', './content-extra.js', './content-core.js', './core-de.js', './core-fr.js', './core-es.js', './core-pt.js', './core-ru.js', './manifest.webmanifest',
+const VERSION = 'jp-2.5.0';
+const SHELL = ['./', './index.html', './styles.css', './app.js', './content.js', './content-plus.js', './content-levels.js', './content-extra.js', './content-en.js', './content-core.js', './core-de.js', './core-fr.js', './core-es.js', './core-pt.js', './core-ru.js', './core-en.js', './manifest.webmanifest',
   './icons/icon-192-v2.png', './icons/icon-512-v2.png', './icons/icon-maskable-512-v2.png', './icons/apple-touch-icon-v2.png', './icons/favicon-32-v2.png'];
 
 self.addEventListener('install', e => {
